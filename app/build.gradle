@@ -1,0 +1,80 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'//dagger2 需要的插件
+apply plugin: 'org.greenrobot.greendao'//greendao插件
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
+    signingConfigs {
+        //调试版的keystore
+        debug {
+            storeFile file("G:\\APPID\\projectDebug.jks")
+            storePassword "123456"
+            keyAlias "debug"
+            keyPassword "654321"
+        }
+        //发布版的keystore
+        release {
+            storeFile file("G:\\APPID\\projectRelease.jks")
+            storePassword "123456"
+            keyAlias "release"
+            keyPassword "654321"
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    greendao {
+        //数据库schema版本，也可以理解为数据库版本号
+        schemaVersion 1
+        //设置DaoMaster 、DaoSession、Dao包名
+        daoPackage 'com.qhn.bhne.footprinting.db'
+        //设置DaoMaster 、DaoSession、Dao目录
+        targetGenDir 'src/main/java'
+        //设置生成单元测试目录
+//    targetGenDirTest
+        //设置自动生成单元测试用例
+//    generateTests
+    }
+    defaultConfig {
+        applicationId "com.qhn.bhne.footprinting"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.0'
+    }
+}
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.0.0'
+    compile 'com.android.support:design:25.0.0'
+    compile 'org.greenrobot:greendao:3.2.0'
+    //没合并前gradle引用
+    compile 'net.zetetic:android-database-sqlcipher:3.5.2'
+    compile 'com.jakewharton:butterknife:8.0.1'
+    apt 'com.jakewharton:butterknife-compiler:8.0.1'
+    testCompile 'junit:junit:4.12'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.github.zhaokaiqiang.klog:library:1.4.0'
+    compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
+}
