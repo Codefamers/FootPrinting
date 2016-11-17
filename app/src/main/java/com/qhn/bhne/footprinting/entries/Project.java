@@ -2,6 +2,7 @@ package com.qhn.bhne.footprinting.entries;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
 
 import java.util.Date;
@@ -17,19 +18,21 @@ public class Project {
     private Long projectId;
 
     @NotNull
-    private String name;
+    private String name;//项目名称
 
-    @NotNull
-    private String category;
+    private String category;//项目类别
 
     private int definition;//定义号
     private int batch;//批次
     private String remark;//备注
-    private Date date;
+    private String date;//创建日期
+    private String describe;
 
-    @Generated(hash = 2023325387)
-    public Project(Long projectId, @NotNull String name, @NotNull String category,
-            int definition, int batch, String remark, Date date) {
+
+
+    @Keep
+    public Project(Long projectId, @NotNull String name, String category,
+            int definition, int batch, String remark, String date,String describe) {
         this.projectId = projectId;
         this.name = name;
         this.category = category;
@@ -37,8 +40,15 @@ public class Project {
         this.batch = batch;
         this.remark = remark;
         this.date = date;
+        this.describe=describe;
+    }
+    public String getDescribe() {
+        return describe;
     }
 
+    public void setDescribe(String describe) {
+        this.describe = describe;
+    }
     @Generated(hash = 1767516619)
     public Project() {
     }
@@ -91,11 +101,11 @@ public class Project {
         this.batch = batch;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

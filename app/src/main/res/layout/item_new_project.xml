@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/ll_project_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/ed_project"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@null"
+            android:drawableLeft="@mipmap/ic_assignment_black_24dp"
+            android:drawablePadding="@dimen/x8"
+            android:hint="项目/工程的名称"
+            android:textColorHint="@color/alpha_35_black"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/img_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_info_outline_white_18dp" />
+    </LinearLayout>
+    <Button
+        android:id="@+id/btn_confirm"
+        style="@style/btn_common_style"
+        android:layout_alignParentRight="true"
+        android:text="@string/confirm"
+        android:textColor="@color/colorAccent"
+        android:background="@null"
+        android:layout_below="@id/ll_project_info"/>
+    <Button
+        android:id="@+id/btn_cancel"
+        style="@style/btn_common_style"
+
+        android:layout_toLeftOf="@id/btn_confirm"
+        android:background="@null"
+        android:text="@string/cancel"
+        android:textColor="@color/colorAccent"
+
+        android:layout_below="@id/ll_project_info"/>
+</RelativeLayout>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context="com.qhn.bhne.footprinting.CreateProject">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            app:navigationIcon="@mipmap/ic_arrow_back_white_24dp" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="com.qhn.bhne.footprinting.CreateProject">
+
+        <LinearLayout
+            android:id="@+id/activity_create_project"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/rec_project"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/y108"
+                android:background="@color/colorPrimary"
+                android:scaleType="centerCrop">
+
+                <TextView
+                    android:id="@+id/txt_project_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/y40"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="@dimen/y48"
+                    android:layout_marginLeft="16dp"
+                    android:maxLines="1"
+                    android:text="天津滨海供电项目"
+                    android:textColor="@color/alpha_85_white"
+                    android:textSize="34sp" />
+
+                <TextView
+                    android:id="@+id/txt_project_edit_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/y24"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="@dimen/y16"
+                    android:layout_marginLeft="16dp"
+                    android:text="2016-11-16 14:14"
+                    android:textColor="@color/alpha_85_white"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/icon_project_info"
+                    android:src="@mipmap/ic_forward_white_24dp" />
+
+                <android.support.design.widget.TextInputLayout
+                    style="@style/textInputLayout"
+
+                    android:layout_weight="5">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/et_project_batch"
+                        style="@style/autoCompleteTextView"
+                        android:hint="项目批次"
+                        android:inputType="number" />
+                </android.support.design.widget.TextInputLayout>
+
+                <ImageView
+
+                    style="@style/icon_project_info"
+                    android:src="@mipmap/ic_flag_white_24dp" />
+
+                <android.support.v7.widget.AppCompatSpinner
+                    android:id="@+id/sp_project_category"
+                    style="@style/textInputLayout"
+                    android:layout_weight="6"
+                    android:entries="@array/project_category" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <ImageView
+
+                    style="@style/icon_project_info"
+                    android:src="@mipmap/ic_format_list_numbered_white_24dp" />
+
+                <android.support.design.widget.TextInputLayout style="@style/textInputLayout">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/et_project_num"
+                        style="@style/autoCompleteTextView"
+                        android:hint="定义号"
+                        android:inputType="number" />
+                </android.support.design.widget.TextInputLayout>
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <ImageView
+
+                    style="@style/icon_project_info"
+                    android:src="@mipmap/ic_description_white_24dp" />
+
+                <android.support.design.widget.TextInputLayout style="@style/textInputLayout">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/et_project_des"
+                        style="@style/autoCompleteTextView"
+                        android:hint="项目描述"
+                        android:maxLines="5" />
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <ImageView
+
+                    style="@style/icon_project_info"
+                    android:src="@mipmap/ic_note_add_white_24dp" />
+
+                <android.support.design.widget.TextInputLayout style="@style/textInputLayout">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/et_project_remark"
+                        style="@style/autoCompleteTextView"
+                        android:hint="项目备注"
+                        android:maxLines="5" />
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+</LinearLayout>

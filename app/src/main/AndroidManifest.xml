@@ -59,10 +59,16 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar" />
+             />
         <activity android:name=".MapActivity" />
-        <activity android:name=".CreateProject" />
-        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".CreateProject"
+            android:parentActivityName=".ShowProjectActivity"/>
+        <activity android:name=".RegisterActivity" />
+        <activity
+            android:name=".ShowProjectActivity"
+            android:label="@string/title_activity_show_project"
+            android:launchMode="singleTask"
+            />
     </application>
 
 </manifest>

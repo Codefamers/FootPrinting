@@ -30,7 +30,8 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         public final static Property Definition = new Property(3, int.class, "definition", false, "DEFINITION");
         public final static Property Batch = new Property(4, int.class, "batch", false, "BATCH");
         public final static Property Remark = new Property(5, String.class, "remark", false, "REMARK");
-        public final static Property Date = new Property(6, java.util.Date.class, "date", false, "DATE");
+        public final static Property Date = new Property(6, String.class, "date", false, "DATE");
+        public final static Property Describe = new Property(7, String.class, "describe", false, "DESCRIBE");
     }
 
 
@@ -48,11 +49,12 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"PROJECT\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: projectId
                 "\"NAME\" TEXT NOT NULL ," + // 1: name
-                "\"CATEGORY\" TEXT NOT NULL ," + // 2: category
+                "\"CATEGORY\" TEXT," + // 2: category
                 "\"DEFINITION\" INTEGER NOT NULL ," + // 3: definition
                 "\"BATCH\" INTEGER NOT NULL ," + // 4: batch
                 "\"REMARK\" TEXT," + // 5: remark
-                "\"DATE\" INTEGER);"); // 6: date
+                "\"DATE\" TEXT," + // 6: date
+                "\"DESCRIBE\" TEXT);"); // 7: describe
     }
 
     /** Drops the underlying database table. */
@@ -70,7 +72,11 @@ public class ProjectDao extends AbstractDao<Project, Long> {
             stmt.bindLong(1, projectId);
         }
         stmt.bindString(2, entity.getName());
-        stmt.bindString(3, entity.getCategory());
+ 
+        String category = entity.getCategory();
+        if (category != null) {
+            stmt.bindString(3, category);
+        }
         stmt.bindLong(4, entity.getDefinition());
         stmt.bindLong(5, entity.getBatch());
  
@@ -79,9 +85,14 @@ public class ProjectDao extends AbstractDao<Project, Long> {
             stmt.bindString(6, remark);
         }
  
-        java.util.Date date = entity.getDate();
+        String date = entity.getDate();
         if (date != null) {
-            stmt.bindLong(7, date.getTime());
+            stmt.bindString(7, date);
+        }
+ 
+        String describe = entity.getDescribe();
+        if (describe != null) {
+            stmt.bindString(8, describe);
         }
     }
 
@@ -94,7 +105,11 @@ public class ProjectDao extends AbstractDao<Project, Long> {
             stmt.bindLong(1, projectId);
         }
         stmt.bindString(2, entity.getName());
-        stmt.bindString(3, entity.getCategory());
+ 
+        String category = entity.getCategory();
+        if (category != null) {
+            stmt.bindString(3, category);
+        }
         stmt.bindLong(4, entity.getDefinition());
         stmt.bindLong(5, entity.getBatch());
  
@@ -103,9 +118,14 @@ public class ProjectDao extends AbstractDao<Project, Long> {
             stmt.bindString(6, remark);
         }
  
-        java.util.Date date = entity.getDate();
+        String date = entity.getDate();
         if (date != null) {
-            stmt.bindLong(7, date.getTime());
+            stmt.bindString(7, date);
+        }
+ 
+        String describe = entity.getDescribe();
+        if (describe != null) {
+            stmt.bindString(8, describe);
         }
     }
 
@@ -119,11 +139,12 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         Project entity = new Project( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // projectId
             cursor.getString(offset + 1), // name
-            cursor.getString(offset + 2), // category
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // category
             cursor.getInt(offset + 3), // definition
             cursor.getInt(offset + 4), // batch
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // remark
-            cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)) // date
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // date
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // describe
         );
         return entity;
     }
@@ -132,11 +153,12 @@ public class ProjectDao extends AbstractDao<Project, Long> {
     public void readEntity(Cursor cursor, Project entity, int offset) {
         entity.setProjectId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setName(cursor.getString(offset + 1));
-        entity.setCategory(cursor.getString(offset + 2));
+        entity.setCategory(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setDefinition(cursor.getInt(offset + 3));
         entity.setBatch(cursor.getInt(offset + 4));
         entity.setRemark(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setDate(cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)));
+        entity.setDate(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setDescribe(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
      }
     
     @Override

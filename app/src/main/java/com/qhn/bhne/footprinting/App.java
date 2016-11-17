@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.qhn.bhne.footprinting.db.DaoMaster;
 import com.qhn.bhne.footprinting.db.DaoSession;
+import com.qhn.bhne.footprinting.entries.User;
 
 import org.greenrobot.greendao.database.Database;
 
@@ -17,7 +18,16 @@ import org.greenrobot.greendao.database.Database;
 public class App extends Application {
     public static final boolean ENCRYPTED=true;
     private DaoSession daoSession;
-    private static Context appContext;
+    public static Context appContext;
+    private  User user;
+
+    public  User getUser() {
+        return user;
+    }
+
+    public  void  setUser(User user) {
+        this.user = user;
+    }
 
     public static Context getAppContext() {
         return appContext;

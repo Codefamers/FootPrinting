@@ -66,10 +66,7 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
     }
 
-    private void initDataBase() {
-        DaoSession daoSession = ((App) getApplication()).getDaoSession();
-        noteDao=daoSession.getNoteDao();
-    }
+
 
     private void initToolbar() {
         setSupportActionBar(toolbar);
@@ -98,11 +95,14 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         KLog.d("note id"+note.getId());
 
     }
-
+    private void initDataBase() {
+        DaoSession daoSession = ((App) getApplication()).getDaoSession();
+        noteDao=daoSession.getNoteDao();
+    }
     private void initRecyclerView() {
         Map<String, List<Construction>> dataMap=new HashMap<>();
         projectListAdapter=new ProjectListAdapter(this, (HashMap<String, List<Construction>>) dataMap);
-        setGridRecyclerStyle(this,recProject,1,projectListAdapter);
+       // setGridRecyclerStyle(this,recProject,1,projectListAdapter);
     }
 
 
@@ -124,16 +124,6 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         }
         return false;
     }
-    //从Url中加载图片
-    public static void loadImageFormNet(String url, ImageView imageView, Activity activity) {
-        Glide.with(activity).load(url).placeholder(R.drawable.ic_placeholder).into(imageView);
-        //Glide.with(activity).load(url).bitmapTransform(new RoundedCornersTransformation(activity, 200, 0, RoundedCornersTransformation.CornerType.TOP)).crossFade().into(imageView);
-    }
 
-    public static void setGridRecyclerStyle(Activity activity, RecyclerView recyclerView, int span, RecyclerView.Adapter adapter) {
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-        recyclerView.setAdapter(adapter);
-    }
 
 }

@@ -46,10 +46,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
         int layoutId = getLayoutId();
         setContentView(layoutId);
         ButterKnife.bind(this);
-        if (isToolbar) {
+
+       /* if (isToolbar) {
             initToolBar();
             setStatusBarTranslucent();
-        }
+        }*/
          daoSession=((App)getApplication()).getDaoSession();
         initViews();
 
@@ -57,13 +58,13 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
     }
 
 
-    private void initToolBar() {
+   /* private void initToolBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setLogo(R.mipmap.ic_launcher);
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
     }
-
+*/
 
     public static boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) App.getAppContext()

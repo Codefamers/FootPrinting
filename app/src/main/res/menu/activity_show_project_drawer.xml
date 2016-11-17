@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_camera"
+            android:icon="@mipmap/ic_input_white_24dp"
+            android:title="@string/output" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@mipmap/ic_get_app_white_24dp"
+            android:title="@string/mapDownload" />
+        <item
+            android:id="@+id/nav_slideshow"
+            android:icon="@mipmap/ic_info_outline_white_24dp"
+            android:title="@string/version" />
+        <item
+            android:id="@+id/nav_manage"
+            android:icon="@mipmap/ic_delete_white_24dp"
+            android:title="@string/delete_data" />
+    </group>
+
+    <item android:title="@string/communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@mipmap/ic_share_white_24dp"
+                android:title="分享" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@mipmap/ic_send_white_24dp"
+                android:title="发送" />
+        </menu>
+    </item>
+
+</menu>

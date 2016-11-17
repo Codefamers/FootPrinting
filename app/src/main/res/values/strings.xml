@@ -20,4 +20,17 @@
     <string name="create_account">创建账户</string>
     <string name="internet_error">网络出错</string>
     <string name="forgetPassword">忘记密码?</string>
+    <string name="title_activity_show_project">ShowProjectActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="delete_data">删除数据</string>
+    <string name="output">导出数据</string>
+    <string name="mapDownload">离线地图下载</string>
+    <string name="version">版本信息</string>
+    <string name="communicate">社区</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
 </resources>

@@ -33,13 +33,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.qhn.bhne.footprinting.db.DaoSession;
-import com.qhn.bhne.footprinting.db.NoteDao;
 import com.qhn.bhne.footprinting.db.UserDao;
-import com.qhn.bhne.footprinting.entries.Note;
-import com.qhn.bhne.footprinting.entries.NoteType;
 import com.qhn.bhne.footprinting.entries.User;
 import com.socks.library.KLog;
 
@@ -109,7 +104,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
 
     @Override
     protected void initViews() {
-        userDao=daoSession.getUserDao();
+        userDao = daoSession.getUserDao();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams localLayoutParams = getWindow().getAttributes();
             localLayoutParams.flags = (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | localLayoutParams.flags);
@@ -124,7 +119,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                 return false;
             }
         });
-
+        //  startActivity(new Intent(this,ShowProjectActivity.class));
     }
 
     @Override
@@ -150,39 +145,38 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                 break;
         }
     }
+
     private void attemptLogin() {
         verifyInfo();
-        if (isRegister(userName)) {
-            Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this,MainActivity.class));
+        User user = isRegister(userName);
+        if (user != null) {
+            ((App) getApplicationContext()).setUser(user);
+            startActivity(new Intent(this, ShowProjectActivity.class));
             finish();
-        }else {
-            Snackbar.make(root,"登录出错请检查用户名与密码是否正确",Snackbar.LENGTH_SHORT).show();
+        } else {
+            Snackbar.make(root, "登录出错请检查用户名与密码是否正确", Snackbar.LENGTH_SHORT).show();
         }
     }
+
     private void attemptRegister() {
         verifyInfo();
-        if (isRegister(userName)) {
-            Snackbar.make(root,"此用户名已被注册",Snackbar.LENGTH_SHORT).show();
+        if (isRegister(userName) != null) {
+            Snackbar.make(root, "此用户名已被注册", Snackbar.LENGTH_SHORT).show();
 
-        }else {
-            User user=new User(null,userName,password,"23131231","12313131");
-            if (userDao.insert(user)!=0) {
+        } else {
+            User user = new User(null, userName, password, "23131231", "12313131");
+            if (userDao.insert(user) != 0) {
                 returnLogin();
             }
         }
 
     }
 
-    private boolean isRegister(String userName) {
-        QueryBuilder<User> qb=userDao.queryBuilder();
+    private User isRegister(String userName) {
+        QueryBuilder<User> qb = userDao.queryBuilder();
         qb.where(UserDao.Properties.Name.eq(userName));
-        Query<User> query=qb.build();
-        User newUser=query.unique();
-        if (newUser!=null) {
-            return true;
-        }
-        return false;
+        Query<User> query = qb.build();
+        return query.unique();
     }
 
     private void verifyInfo() {
@@ -218,7 +212,6 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
 
-
     private void registerAccount() {
         loginOrRegister = true;
         btnCreateAccount.setText("返回登录");
@@ -234,7 +227,6 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         cbRememberPassword.setVisibility(View.VISIBLE);
         loginOrRegister = false;
     }
-
 
 
     private void populateAutoComplete() {
@@ -292,7 +284,6 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         //TODO: Replace this with your own logic
         return userName.contains("@");
     }*/
-
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
@@ -457,6 +448,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             showProgress(false);
         }
     }
+
     public static String formatDate(String before) {
         String after;
         try {
