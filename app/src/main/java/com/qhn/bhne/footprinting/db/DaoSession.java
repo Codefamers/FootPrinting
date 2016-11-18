@@ -8,10 +8,12 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
+import com.qhn.bhne.footprinting.entries.Construction;
 import com.qhn.bhne.footprinting.entries.Note;
 import com.qhn.bhne.footprinting.entries.Project;
 import com.qhn.bhne.footprinting.entries.User;
 
+import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.NoteDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.db.UserDao;
@@ -25,10 +27,12 @@ import com.qhn.bhne.footprinting.db.UserDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
+    private final DaoConfig constructionDaoConfig;
     private final DaoConfig noteDaoConfig;
     private final DaoConfig projectDaoConfig;
     private final DaoConfig userDaoConfig;
 
+    private final ConstructionDao constructionDao;
     private final NoteDao noteDao;
     private final ProjectDao projectDao;
     private final UserDao userDao;
@@ -36,6 +40,9 @@ public class DaoSession extends AbstractDaoSession {
     public DaoSession(Database db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
             daoConfigMap) {
         super(db);
+
+        constructionDaoConfig = daoConfigMap.get(ConstructionDao.class).clone();
+        constructionDaoConfig.initIdentityScope(type);
 
         noteDaoConfig = daoConfigMap.get(NoteDao.class).clone();
         noteDaoConfig.initIdentityScope(type);
@@ -46,19 +53,26 @@ public class DaoSession extends AbstractDaoSession {
         userDaoConfig = daoConfigMap.get(UserDao.class).clone();
         userDaoConfig.initIdentityScope(type);
 
+        constructionDao = new ConstructionDao(constructionDaoConfig, this);
         noteDao = new NoteDao(noteDaoConfig, this);
         projectDao = new ProjectDao(projectDaoConfig, this);
         userDao = new UserDao(userDaoConfig, this);
 
+        registerDao(Construction.class, constructionDao);
         registerDao(Note.class, noteDao);
         registerDao(Project.class, projectDao);
         registerDao(User.class, userDao);
     }
     
     public void clear() {
+        constructionDaoConfig.clearIdentityScope();
         noteDaoConfig.clearIdentityScope();
         projectDaoConfig.clearIdentityScope();
         userDaoConfig.clearIdentityScope();
+    }
+
+    public ConstructionDao getConstructionDao() {
+        return constructionDao;
     }
 
     public NoteDao getNoteDao() {

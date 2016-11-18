@@ -16,4 +16,11 @@
         android:id="@+id/rec_project"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+    <ExpandableListView
+        android:id="@+id/exl_project"
+        android:layout_below="@id/rec_project"
+        android:layout_width="match_parent"
+        android:groupIndicator="@color/colorPrimary"
+        android:layout_height="match_parent">
+    </ExpandableListView>
 </RelativeLayout>

@@ -2,6 +2,7 @@ package com.qhn.bhne.footprinting;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
@@ -20,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -28,6 +31,7 @@ import com.qhn.bhne.footprinting.db.DaoSession;
 import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.entries.Construction;
 import com.qhn.bhne.footprinting.entries.Project;
+import com.socks.library.KLog;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -52,21 +56,48 @@ public class ShowProjectActivity extends BaseActivity
     DrawerLayout drawer;
     @BindView(R.id.rec_project)
     RecyclerView recProject;
+    @BindView(R.id.exl_project)
+    ExpandableListView exlProject;
     private ProjectListAdapter projectListAdapter;
     private EditText editText;
     private ImageView imageHint;
     private Button btnCancel;
     private Button btnConfirm;
     private View dialogView;
+    private ExpandProjectListView expandableListAdapter;
+    private List<Project> projectList;
 
     @Override
     protected void initViews() {
         initToolBar();
         initDrawerLayout();
         initRecyclerView();
+        initExpandableListView();
         initDataBase();
     }
 
+    private void initExpandableListView() {
+        Construction construction=new Construction(null,1l,"123456","天津","高压",null,null,null,null);
+        daoSession.insert(construction);
+        projectList=queryProjectList();
+        expandableListAdapter=new ExpandProjectListView(this,projectList,daoSession);
+        exlProject.setAdapter(expandableListAdapter);
+    }
+
+    private List<Project> queryProjectList() {
+        Query<Project> projectQuery=daoSession.getProjectDao()
+                .queryBuilder()
+                .where(ProjectDao.Properties.UserName.eq("123456"))
+                .build();
+        return projectQuery.list();
+    }
+    private Project queryProjectUniqe(String projectName) {
+        Query<Project> projectQuery=daoSession.getProjectDao()
+                .queryBuilder()
+                .where(ProjectDao.Properties.UserName.eq("123456"),ProjectDao.Properties.Name.eq(projectName))
+                .build();
+        return projectQuery.unique();
+    }
     private void initToolBar() {
         setSupportActionBar(toolbar);
         StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));
@@ -161,7 +192,10 @@ public class ShowProjectActivity extends BaseActivity
 
     //验证工程名是否重复
     private boolean verifyIsRepeat(String projectName) {
-        Query<Project> projectQuery = daoSession.getProjectDao().queryBuilder().where(ProjectDao.Properties.Name.eq(projectName)).build();
+        Query<Project> projectQuery = daoSession.getProjectDao()
+                .queryBuilder()
+                .where(ProjectDao.Properties.Name.eq(projectName), ProjectDao.Properties.UserName.eq("123456"))
+                .build();
         if (projectQuery.unique() != null) {
             return true;
         } else
@@ -251,6 +285,10 @@ public class ShowProjectActivity extends BaseActivity
             switch (resultCode) {
                 case RESULT_OK:
                     refreshRecyclerView();
+                    KLog.d("增加一条数据");
+                    projectList.add(queryProjectUniqe(data.getStringExtra("PROJECT_NAME")));
+                    expandableListAdapter.notifyDataSetChanged();
+
                     break;
             }
         }

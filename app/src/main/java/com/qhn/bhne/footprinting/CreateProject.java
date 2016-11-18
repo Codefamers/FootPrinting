@@ -110,7 +110,7 @@ public class CreateProject extends BaseActivity {
         batch= TextUtils.isEmpty(strDefinition)?0:Integer.parseInt(strBatch);
         remark=etProjectRemark.getText().toString();
         describe=etProjectDes.getText().toString();
-        Project project = new Project(null, name, category, definition, batch, remark, date, describe);
+        Project project = new Project(null, name,"123456", category, definition, batch, remark, date, describe);
         ProjectDao projectDao=daoSession.getProjectDao();
         return projectDao.insert(project);
     }

@@ -19,6 +19,9 @@ public class Project {
 
     @NotNull
     private String name;//项目名称
+    @NotNull
+    private String userName;//用户名称
+
 
     private String category;//项目类别
 
@@ -31,7 +34,7 @@ public class Project {
 
 
     @Keep
-    public Project(Long projectId, @NotNull String name, String category,
+    public Project(Long projectId, @NotNull String name,@NotNull String userName ,String category,
             int definition, int batch, String remark, String date,String describe) {
         this.projectId = projectId;
         this.name = name;
@@ -41,11 +44,19 @@ public class Project {
         this.remark = remark;
         this.date = date;
         this.describe=describe;
+        this.userName=userName;
     }
     public String getDescribe() {
         return describe;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
     public void setDescribe(String describe) {
         this.describe = describe;
     }
