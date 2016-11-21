@@ -9,12 +9,12 @@ import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
 import com.qhn.bhne.footprinting.entries.Construction;
-import com.qhn.bhne.footprinting.entries.Note;
+import com.qhn.bhne.footprinting.entries.FileContent;
 import com.qhn.bhne.footprinting.entries.Project;
 import com.qhn.bhne.footprinting.entries.User;
 
 import com.qhn.bhne.footprinting.db.ConstructionDao;
-import com.qhn.bhne.footprinting.db.NoteDao;
+import com.qhn.bhne.footprinting.db.FileContentDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.db.UserDao;
 
@@ -28,12 +28,12 @@ import com.qhn.bhne.footprinting.db.UserDao;
 public class DaoSession extends AbstractDaoSession {
 
     private final DaoConfig constructionDaoConfig;
-    private final DaoConfig noteDaoConfig;
+    private final DaoConfig fileContentDaoConfig;
     private final DaoConfig projectDaoConfig;
     private final DaoConfig userDaoConfig;
 
     private final ConstructionDao constructionDao;
-    private final NoteDao noteDao;
+    private final FileContentDao fileContentDao;
     private final ProjectDao projectDao;
     private final UserDao userDao;
 
@@ -44,8 +44,8 @@ public class DaoSession extends AbstractDaoSession {
         constructionDaoConfig = daoConfigMap.get(ConstructionDao.class).clone();
         constructionDaoConfig.initIdentityScope(type);
 
-        noteDaoConfig = daoConfigMap.get(NoteDao.class).clone();
-        noteDaoConfig.initIdentityScope(type);
+        fileContentDaoConfig = daoConfigMap.get(FileContentDao.class).clone();
+        fileContentDaoConfig.initIdentityScope(type);
 
         projectDaoConfig = daoConfigMap.get(ProjectDao.class).clone();
         projectDaoConfig.initIdentityScope(type);
@@ -54,19 +54,19 @@ public class DaoSession extends AbstractDaoSession {
         userDaoConfig.initIdentityScope(type);
 
         constructionDao = new ConstructionDao(constructionDaoConfig, this);
-        noteDao = new NoteDao(noteDaoConfig, this);
+        fileContentDao = new FileContentDao(fileContentDaoConfig, this);
         projectDao = new ProjectDao(projectDaoConfig, this);
         userDao = new UserDao(userDaoConfig, this);
 
         registerDao(Construction.class, constructionDao);
-        registerDao(Note.class, noteDao);
+        registerDao(FileContent.class, fileContentDao);
         registerDao(Project.class, projectDao);
         registerDao(User.class, userDao);
     }
     
     public void clear() {
         constructionDaoConfig.clearIdentityScope();
-        noteDaoConfig.clearIdentityScope();
+        fileContentDaoConfig.clearIdentityScope();
         projectDaoConfig.clearIdentityScope();
         userDaoConfig.clearIdentityScope();
     }
@@ -75,8 +75,8 @@ public class DaoSession extends AbstractDaoSession {
         return constructionDao;
     }
 
-    public NoteDao getNoteDao() {
-        return noteDao;
+    public FileContentDao getFileContentDao() {
+        return fileContentDao;
     }
 
     public ProjectDao getProjectDao() {

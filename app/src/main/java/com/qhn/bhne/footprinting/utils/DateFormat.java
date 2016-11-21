@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

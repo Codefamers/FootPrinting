@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.utils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

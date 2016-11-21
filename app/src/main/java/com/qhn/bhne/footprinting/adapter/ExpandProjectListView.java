@@ -1,28 +1,37 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.qhn.bhne.footprinting.activities.MapActivity;
+import com.qhn.bhne.footprinting.R;
+import com.qhn.bhne.footprinting.activities.ShowProjectActivity;
 import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.DaoSession;
+import com.qhn.bhne.footprinting.db.FileContentDao;
 import com.qhn.bhne.footprinting.entries.Construction;
+import com.qhn.bhne.footprinting.entries.FileContent;
 import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.interfaces.CreateFileCallBack;
+import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
 
 import org.greenrobot.greendao.query.Query;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -30,17 +39,20 @@ import java.util.List;
  * on 2016/11/18 0018.
  */
 
-public class ExpandProjectListView extends BaseExpandableListAdapter {
+public class ExpandProjectListView extends BaseExpandableListAdapter implements CreateFileCallBack {
 
     private List<Project> projectList;
     private Activity activity;
     private DaoSession daoSession;
     private List<Construction> constructionList;
+    private PopClickItemCallBack callBack;
+    private FileListAdapter adapter;
 
-    public ExpandProjectListView(Activity activity, List<Project> projectList, DaoSession daoSession) {
+    public ExpandProjectListView(Activity activity, List<Project> projectList, DaoSession daoSession, PopClickItemCallBack itemCallBack) {
         this.activity = activity;
         this.projectList = projectList;
         this.daoSession = daoSession;
+        callBack=itemCallBack;
     }
 
 
@@ -88,23 +100,40 @@ public class ExpandProjectListView extends BaseExpandableListAdapter {
 
 
     @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+    public View getGroupView(final int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         // 获取对应一级条目的View  和ListView 的getView相似
-        ProjectViewHolder holder;
+        final ProjectViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(activity).inflate(R.layout.item_project_header, null);
             holder = new ProjectViewHolder();
             holder.txtProjectName = (TextView) convertView.findViewById(R.id.txt_project_name);
+            holder.imgMoreOperation= (ImageView) convertView.findViewById(R.id.img_more_operation);
             convertView.setTag(holder);
         } else {
             holder = (ProjectViewHolder) convertView.getTag();
         }
+        holder.imgMoreOperation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popMenu=new PopupMenu(activity,holder.imgMoreOperation);
+                popMenu.getMenuInflater().inflate(R.menu.menu_project_operation,popMenu.getMenu());
+                popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_CONSTRUCTION,groupPosition);
+                        return true;
+                    }
+                });
+                popMenu.show();
+            }
+        });
         holder.txtProjectName.setText(projectList.get(groupPosition).getName());
+
         return convertView;
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+    public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         // 获取对应二级条目的View  和ListView 的getView相似
         final ConsViewHolder holder;
         if (convertView == null) {
@@ -112,16 +141,40 @@ public class ExpandProjectListView extends BaseExpandableListAdapter {
             holder = new ConsViewHolder();
             holder.txtConsName = (TextView) convertView.findViewById(R.id.txt_cons_name);
             holder.lvFile= (ListView) convertView.findViewById(R.id.lv_file_name);
+            holder.imgMoreOperation= (ImageView) convertView.findViewById(R.id.img_more_operation);
             convertView.setTag(holder);
         } else {
             holder = (ConsViewHolder) convertView.getTag();
         }
         if (constructionList.size()!=0) {
             holder.txtConsName.setText(constructionList.get(childPosition).getName());
-            ArrayAdapter adapter=new ArrayAdapter(activity,android.R.layout.simple_list_item_1,activity.getResources().getStringArray(R.array.project_category));
+
+            List<FileContent> fileContentList=queryFile(constructionList.get(childPosition).getConstructionId());
+            String[] arrayFile=new String[fileContentList.size()];
+            for (int i = 0; i < fileContentList.size(); i++) {
+                arrayFile[i]=fileContentList.get(i).getFileName();
+            }
+
+            adapter=new FileListAdapter(fileContentList,activity);
             holder.lvFile.setAdapter(adapter);
             setListViewHeightBasedOnChildren(holder.lvFile);
         }
+        holder.imgMoreOperation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popMenu=new PopupMenu(activity,holder.imgMoreOperation);
+                popMenu.getMenuInflater().inflate(R.menu.menu_project_operation,popMenu.getMenu());
+                popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_FILE,childPosition);
+                        return true;
+                    }
+                });
+                popMenu.show();
+            }
+        });
+
         holder.txtConsName.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -143,38 +196,36 @@ public class ExpandProjectListView extends BaseExpandableListAdapter {
 
     }
 
+    private List<FileContent> queryFile(Long constID) {
+        Query<FileContent> query=daoSession.getFileContentDao().queryBuilder()
+                .where(FileContentDao.Properties.ConstID.eq(constID)).build();
+
+        return query.list();
+    }
+
     @Override
     public boolean isChildSelectable(int i, int i1) {
         return false;
     }
 
-
-    private TextView getGenericView(String string) {
-
-        AbsListView.LayoutParams layoutParams = new AbsListView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        TextView textView = new TextView(activity);
-        textView.setLayoutParams(layoutParams);
-
-        textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-
-        textView.setPadding(40, 20, 0, 20);
-        textView.setText(string);
-        textView.setTextColor(Color.RED);
-        return textView;
+    @Override
+    public void onSuccess(FileContent fileContent) {
+        adapter.addItem(fileContent);
+       // adapter.notifyDataSetChanged();
     }
+
 
     static class ProjectViewHolder {
         private TextView txtProjectName;
+        private ImageView imgMoreOperation;
     }
 
     static class ConsViewHolder {
         private TextView txtConsName;
         private ListView  lvFile;
+        private ImageView imgMoreOperation;
     }
-    public void setListViewHeightBasedOnChildren(ListView listView) {
+    private void setListViewHeightBasedOnChildren(ListView listView) {
         // 获取ListView对应的Adapter
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {

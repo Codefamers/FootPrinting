@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.entries.Construction;
 import com.qhn.bhne.footprinting.entries.Project;
 

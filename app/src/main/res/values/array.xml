@@ -5,4 +5,32 @@
         <item >城网</item>
         <item >农网</item>
     </string-array>
+
+    <string-array name="profession_category">
+        <item>专业(提示内容)</item>
+        <item >配电</item>
+        <item >架空</item>
+        <item >电缆</item>
+        <item >楼内</item>
+    </string-array>
+    <string-array name="press_level">
+        <item>电压等级(提示内容)</item>
+        <item >10kV</item>
+        <item >0.4kV</item>
+
+    </string-array>
+
+    <string-array name="const_category">
+        <item>工程分类(提示内容)</item>
+        <item >低压台区改造</item>
+        <item >绝缘化改造</item>
+
+        <item >联络</item>
+        <item >线路切改</item>
+        <item >新建出线</item>
+        <item >配电自动化</item>
+        <item >电动汽车充换电桩</item>
+        <item >其他项目</item>
+
+    </string-array>
 </resources>

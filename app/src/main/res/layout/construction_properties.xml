@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_const_info"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_marginLeft="24dp"
+         android:layout_marginStart="24dp"
+         android:layout_marginTop="32dp"
+         android:orientation="horizontal">
+
+
+       &lt;!&ndash;  <ImageView
+
+             style="@style/icon_project_info"
+             android:src="@mipmap/ic_format_list_numbered_white_24dp" />
+
+         <android.support.design.widget.TextInputLayout style="@style/textInputLayout">
+
+             <AutoCompleteTextView
+                 android:id="@+id/et_project_num"
+                 style="@style/autoCompleteTextView"
+                 android:hint="工程名称"
+                 android:inputType="number" />
+         </android.support.design.widget.TextInputLayout>&ndash;&gt;
+
+     </LinearLayout>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            style="@style/icon_project_info"
+            android:src="@mipmap/ic_directions_walk_white_24dp" />
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/sp_const_profession_category"
+            style="@style/textInputLayout"
+            android:entries="@array/const_category" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <ImageView
+
+            style="@style/icon_project_info"
+            android:src="@mipmap/ic_flag_white_24dp" />
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/sp_const_category"
+            style="@style/textInputLayout"
+            android:entries="@array/profession_category" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            style="@style/icon_project_info"
+            android:src="@mipmap/ic_flash_on_white_24dp" />
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/sp_press_level"
+            style="@style/textInputLayout"
+            android:entries="@array/press_level" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

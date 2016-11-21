@@ -7,6 +7,7 @@ import org.greenrobot.greendao.annotation.NotNull;
 
 import java.util.Date;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Unique;
 
 /**
  * Created by qhn
@@ -25,6 +26,7 @@ public class Construction {
 
     @NotNull
     private String category;//类别
+    @Unique
     @NotNull
     private String userName;//用户名称
     private String profession;//专业

@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.utils;
 
 import android.app.Activity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.qhn.bhne.footprinting.R;
 
 /**
  * Created by qhn

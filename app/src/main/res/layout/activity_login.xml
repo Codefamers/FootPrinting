@@ -7,16 +7,9 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.qhn.bhne.footprinting.LoginActivity">
+    tools:context="com.qhn.bhne.footprinting.activities.LoginActivity">
 
-    <!-- Login progress -->
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+
 
     <ScrollView
         android:id="@+id/login_form"
@@ -58,7 +51,7 @@
 
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                     />
 
             </android.support.design.widget.TextInputLayout>
 

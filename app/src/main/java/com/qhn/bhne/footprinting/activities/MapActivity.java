@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +22,7 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.qhn.bhne.footprinting.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,14 +38,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
 
     @BindView(R.id.map)
     MapView map;
-    @BindView(R.id.button2)
-    Button button2;
-    @BindView(R.id.button1)
-    Button button1;
-    @BindView(R.id.button3)
-    Button button3;
-    @BindView(R.id.button4)
-    Button button4;
+
     @BindView(R.id.activity_map)
     RelativeLayout activityMap;
     //地图显示
@@ -243,34 +237,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
 
     }
 
-    @OnClick({R.id.button2, R.id.button3, R.id.button4, R.id.button1})
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.button2:
-                //aMap.setMapType(AMap.MAP_TYPE_NAVI);导航模式底图
-                /*LatLng latLng = new LatLng(39.906901, 116.397972);
-                Marker marker = aMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title("北京")
-                        .snippet("DefaultMarker"));*/
 
-                break;
-            case R.id.button3:
-                // aMap.setMapType(AMap.MAP_TYPE_NORMAL);//常规底图
-
-                aMap.moveCamera(CameraUpdateFactory.zoomTo(250));
-                break;
-            case R.id.button4:
-                aMap.moveCamera(CameraUpdateFactory.zoomTo(350));
-                //aMap.setMapType(AMap.MAP_TYPE_SATELLITE);//卫星底图
-                break;
-            case R.id.button1:
-                aMap.moveCamera(CameraUpdateFactory.zoomTo(50));
-                //aMap.setMapType(AMap.MAP_TYPE_NIGHT);//黑夜模式底图
-
-                break;
-        }
-    }
 }
 /* public static String sHA1(Context context) {
         try {

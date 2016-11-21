@@ -6,6 +6,7 @@ import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Unique;
 
 /**
  * Created by qhn
@@ -16,6 +17,7 @@ public class User {
     @Id(autoincrement = true)
     private Long id;
 
+    @Unique
     @NotNull
     private String name;//账户
 

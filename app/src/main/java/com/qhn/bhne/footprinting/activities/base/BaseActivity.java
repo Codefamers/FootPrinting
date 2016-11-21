@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.activities.base;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.qhn.bhne.footprinting.App;
+import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.db.DaoSession;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.socks.library.KLog;

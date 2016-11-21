@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/add_construction"
+        android:title="@string/addConstruction"/>
+
+    <item
+        android:id="@+id/look_info"
+        android:title="@string/look_info"/>
+    <item
+        android:id="@+id/delete_project"
+        android:icon="@mipmap/ic_delete_white_24dp"
+        android:title="删除项目"/>
+</menu>

@@ -47,7 +47,7 @@
         <service android:name="com.amap.api.location.APSService" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.LoginActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -56,16 +56,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.MapActivity" />
+        <activity android:name=".activities.CreateProjectActivity"
+            android:parentActivityName=".activities.ShowProjectActivity"/>
         <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main"
-             />
-        <activity android:name=".MapActivity" />
-        <activity android:name=".CreateProject"
-            android:parentActivityName=".ShowProjectActivity"/>
-        <activity android:name=".RegisterActivity" />
-        <activity
-            android:name=".ShowProjectActivity"
+            android:name=".activities.ShowProjectActivity"
             android:label="@string/title_activity_show_project"
             android:launchMode="singleTask"
             />

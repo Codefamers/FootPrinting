@@ -7,6 +7,7 @@ import org.greenrobot.greendao.annotation.NotNull;
 
 import java.util.Date;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Unique;
 
 /**
  * Created by qhn
@@ -19,12 +20,12 @@ public class Project {
 
     @NotNull
     private String name;//项目名称
+
+    @Unique
     @NotNull
     private String userName;//用户名称
 
-
     private String category;//项目类别
-
     private int definition;//定义号
     private int batch;//批次
     private String remark;//备注

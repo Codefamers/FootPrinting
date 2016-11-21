@@ -50,7 +50,7 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"PROJECT\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: projectId
                 "\"NAME\" TEXT NOT NULL ," + // 1: name
-                "\"USER_NAME\" TEXT NOT NULL ," + // 2: userName
+                "\"USER_NAME\" TEXT NOT NULL UNIQUE ," + // 2: userName
                 "\"CATEGORY\" TEXT," + // 3: category
                 "\"DEFINITION\" INTEGER NOT NULL ," + // 4: definition
                 "\"BATCH\" INTEGER NOT NULL ," + // 5: batch

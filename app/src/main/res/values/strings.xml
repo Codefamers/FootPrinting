@@ -20,7 +20,7 @@
     <string name="create_account">创建账户</string>
     <string name="internet_error">网络出错</string>
     <string name="forgetPassword">忘记密码?</string>
-    <string name="title_activity_show_project">ShowProjectActivity</string>
+    <string name="title_activity_show_project">基建踩点</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -33,4 +33,7 @@
     <string name="communicate">社区</string>
     <string name="cancel">取消</string>
     <string name="confirm">确定</string>
+    <string name="addConstruction">添加工程</string>
+    <string name="look_info">查看信息</string>
+    <string name="preference_file_key">app配置信息</string>
 </resources>
