@@ -33,6 +33,8 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         public final static Property Remark = new Property(6, String.class, "remark", false, "REMARK");
         public final static Property Date = new Property(7, String.class, "date", false, "DATE");
         public final static Property Describe = new Property(8, String.class, "describe", false, "DESCRIBE");
+        public final static Property ProjectMax = new Property(9, int.class, "projectMax", false, "PROJECT_MAX");
+        public final static Property ParentID = new Property(10, Long.class, "parentID", false, "PARENT_ID");
     }
 
 
@@ -50,13 +52,15 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"PROJECT\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: projectId
                 "\"NAME\" TEXT NOT NULL ," + // 1: name
-                "\"USER_NAME\" TEXT NOT NULL UNIQUE ," + // 2: userName
+                "\"USER_NAME\" TEXT NOT NULL ," + // 2: userName
                 "\"CATEGORY\" TEXT," + // 3: category
                 "\"DEFINITION\" INTEGER NOT NULL ," + // 4: definition
                 "\"BATCH\" INTEGER NOT NULL ," + // 5: batch
                 "\"REMARK\" TEXT," + // 6: remark
                 "\"DATE\" TEXT," + // 7: date
-                "\"DESCRIBE\" TEXT);"); // 8: describe
+                "\"DESCRIBE\" TEXT," + // 8: describe
+                "\"PROJECT_MAX\" INTEGER NOT NULL ," + // 9: projectMax
+                "\"PARENT_ID\" INTEGER);"); // 10: parentID
     }
 
     /** Drops the underlying database table. */
@@ -97,6 +101,12 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         if (describe != null) {
             stmt.bindString(9, describe);
         }
+        stmt.bindLong(10, entity.getProjectMax());
+ 
+        Long parentID = entity.getParentID();
+        if (parentID != null) {
+            stmt.bindLong(11, parentID);
+        }
     }
 
     @Override
@@ -131,6 +141,12 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         if (describe != null) {
             stmt.bindString(9, describe);
         }
+        stmt.bindLong(10, entity.getProjectMax());
+ 
+        Long parentID = entity.getParentID();
+        if (parentID != null) {
+            stmt.bindLong(11, parentID);
+        }
     }
 
     @Override
@@ -149,7 +165,9 @@ public class ProjectDao extends AbstractDao<Project, Long> {
             cursor.getInt(offset + 5), // batch
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // remark
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // date
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // describe
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // describe
+            cursor.getInt(offset + 9), // projectMax
+            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10) // parentID
         );
         return entity;
     }
@@ -165,6 +183,8 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         entity.setRemark(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setDate(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setDescribe(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setProjectMax(cursor.getInt(offset + 9));
+        entity.setParentID(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
      }
     
     @Override

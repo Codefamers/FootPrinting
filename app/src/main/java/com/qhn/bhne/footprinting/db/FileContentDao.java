@@ -25,7 +25,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
      */
     public static class Properties {
         public final static Property FileID = new Property(0, Long.class, "fileID", true, "_id");
-        public final static Property ConstID = new Property(1, Long.class, "constID", false, "CONST_ID");
+        public final static Property ParentID = new Property(1, Long.class, "parentID", false, "PARENT_ID");
         public final static Property FileName = new Property(2, String.class, "fileName", false, "FILE_NAME");
         public final static Property UserName = new Property(3, String.class, "userName", false, "USER_NAME");
     }
@@ -44,9 +44,12 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"FILE_CONTENT\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: fileID
-                "\"CONST_ID\" INTEGER NOT NULL ," + // 1: constID
-                "\"FILE_NAME\" TEXT NOT NULL UNIQUE ," + // 2: fileName
+                "\"PARENT_ID\" INTEGER NOT NULL ," + // 1: parentID
+                "\"FILE_NAME\" TEXT NOT NULL ," + // 2: fileName
                 "\"USER_NAME\" TEXT NOT NULL );"); // 3: userName
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_FILE_CONTENT_FILE_NAME ON FILE_CONTENT" +
+                " (\"FILE_NAME\" ASC);");
     }
 
     /** Drops the underlying database table. */
@@ -63,7 +66,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         if (fileID != null) {
             stmt.bindLong(1, fileID);
         }
-        stmt.bindLong(2, entity.getConstID());
+        stmt.bindLong(2, entity.getParentID());
         stmt.bindString(3, entity.getFileName());
         stmt.bindString(4, entity.getUserName());
     }
@@ -76,7 +79,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         if (fileID != null) {
             stmt.bindLong(1, fileID);
         }
-        stmt.bindLong(2, entity.getConstID());
+        stmt.bindLong(2, entity.getParentID());
         stmt.bindString(3, entity.getFileName());
         stmt.bindString(4, entity.getUserName());
     }
@@ -90,7 +93,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
     public FileContent readEntity(Cursor cursor, int offset) {
         FileContent entity = new FileContent( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // fileID
-            cursor.getLong(offset + 1), // constID
+            cursor.getLong(offset + 1), // parentID
             cursor.getString(offset + 2), // fileName
             cursor.getString(offset + 3) // userName
         );
@@ -100,7 +103,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
     @Override
     public void readEntity(Cursor cursor, FileContent entity, int offset) {
         entity.setFileID(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setConstID(cursor.getLong(offset + 1));
+        entity.setParentID(cursor.getLong(offset + 1));
         entity.setFileName(cursor.getString(offset + 2));
         entity.setUserName(cursor.getString(offset + 3));
      }

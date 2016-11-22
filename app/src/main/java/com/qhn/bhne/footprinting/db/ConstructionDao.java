@@ -25,10 +25,10 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
      */
     public static class Properties {
         public final static Property ConstructionId = new Property(0, Long.class, "constructionId", true, "_id");
-        public final static Property ProjectId = new Property(1, Long.class, "projectId", false, "PROJECT_ID");
-        public final static Property UserName = new Property(2, String.class, "userName", false, "USER_NAME");
-        public final static Property Name = new Property(3, String.class, "name", false, "NAME");
-        public final static Property Category = new Property(4, String.class, "category", false, "CATEGORY");
+        public final static Property ParentID = new Property(1, Long.class, "parentID", false, "PARENT_ID");
+        public final static Property Name = new Property(2, String.class, "name", false, "NAME");
+        public final static Property Category = new Property(3, String.class, "category", false, "CATEGORY");
+        public final static Property UserName = new Property(4, String.class, "userName", false, "USER_NAME");
         public final static Property Profession = new Property(5, String.class, "profession", false, "PROFESSION");
         public final static Property VoltageClass = new Property(6, String.class, "voltageClass", false, "VOLTAGE_CLASS");
         public final static Property Remark = new Property(7, String.class, "remark", false, "REMARK");
@@ -49,14 +49,17 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"CONSTRUCTION\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: constructionId
-                "\"PROJECT_ID\" INTEGER NOT NULL ," + // 1: projectId
-                "\"USER_NAME\" TEXT NOT NULL UNIQUE ," + // 2: userName
-                "\"NAME\" TEXT NOT NULL ," + // 3: name
-                "\"CATEGORY\" TEXT NOT NULL ," + // 4: category
+                "\"PARENT_ID\" INTEGER NOT NULL ," + // 1: parentID
+                "\"NAME\" TEXT NOT NULL ," + // 2: name
+                "\"CATEGORY\" TEXT NOT NULL ," + // 3: category
+                "\"USER_NAME\" TEXT NOT NULL ," + // 4: userName
                 "\"PROFESSION\" TEXT," + // 5: profession
                 "\"VOLTAGE_CLASS\" TEXT," + // 6: voltageClass
                 "\"REMARK\" TEXT," + // 7: remark
                 "\"DATE\" TEXT);"); // 8: date
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_CONSTRUCTION_NAME ON CONSTRUCTION" +
+                " (\"NAME\" ASC);");
     }
 
     /** Drops the underlying database table. */
@@ -73,10 +76,10 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
         if (constructionId != null) {
             stmt.bindLong(1, constructionId);
         }
-        stmt.bindLong(2, entity.getProjectId());
-        stmt.bindString(3, entity.getUserName());
-        stmt.bindString(4, entity.getName());
-        stmt.bindString(5, entity.getCategory());
+        stmt.bindLong(2, entity.getParentID());
+        stmt.bindString(3, entity.getName());
+        stmt.bindString(4, entity.getCategory());
+        stmt.bindString(5, entity.getUserName());
  
         String profession = entity.getProfession();
         if (profession != null) {
@@ -107,10 +110,10 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
         if (constructionId != null) {
             stmt.bindLong(1, constructionId);
         }
-        stmt.bindLong(2, entity.getProjectId());
-        stmt.bindString(3, entity.getUserName());
-        stmt.bindString(4, entity.getName());
-        stmt.bindString(5, entity.getCategory());
+        stmt.bindLong(2, entity.getParentID());
+        stmt.bindString(3, entity.getName());
+        stmt.bindString(4, entity.getCategory());
+        stmt.bindString(5, entity.getUserName());
  
         String profession = entity.getProfession();
         if (profession != null) {
@@ -142,10 +145,10 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
     public Construction readEntity(Cursor cursor, int offset) {
         Construction entity = new Construction( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // constructionId
-            cursor.getLong(offset + 1), // projectId
-            cursor.getString(offset + 2), // userName
-            cursor.getString(offset + 3), // name
-            cursor.getString(offset + 4), // category
+            cursor.getLong(offset + 1), // parentID
+            cursor.getString(offset + 2), // name
+            cursor.getString(offset + 3), // category
+            cursor.getString(offset + 4), // userName
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // profession
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // voltageClass
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // remark
@@ -157,10 +160,10 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
     @Override
     public void readEntity(Cursor cursor, Construction entity, int offset) {
         entity.setConstructionId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setProjectId(cursor.getLong(offset + 1));
-        entity.setUserName(cursor.getString(offset + 2));
-        entity.setName(cursor.getString(offset + 3));
-        entity.setCategory(cursor.getString(offset + 4));
+        entity.setParentID(cursor.getLong(offset + 1));
+        entity.setName(cursor.getString(offset + 2));
+        entity.setCategory(cursor.getString(offset + 3));
+        entity.setUserName(cursor.getString(offset + 4));
         entity.setProfession(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
         entity.setVoltageClass(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setRemark(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));

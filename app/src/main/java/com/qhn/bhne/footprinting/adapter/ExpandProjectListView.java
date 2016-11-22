@@ -26,6 +26,7 @@ import com.qhn.bhne.footprinting.db.FileContentDao;
 import com.qhn.bhne.footprinting.entries.Construction;
 import com.qhn.bhne.footprinting.entries.FileContent;
 import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.interfaces.CreateFileCallBack;
 import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
 
@@ -44,10 +45,9 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
     private List<Project> projectList;
     private Activity activity;
     private DaoSession daoSession;
-    private List<Construction> constructionList;
+
     private PopClickItemCallBack callBack;
     private FileListAdapter adapter;
-
     public ExpandProjectListView(Activity activity, List<Project> projectList, DaoSession daoSession, PopClickItemCallBack itemCallBack) {
         this.activity = activity;
         this.projectList = projectList;
@@ -63,14 +63,8 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
 
     @Override
     public int getChildrenCount(int position) {
-        Long projectId = projectList.get(position).getProjectId();
-        Query<Construction> constructionQuery = daoSession.
-                getConstructionDao()
-                .queryBuilder()
-                .where(ConstructionDao.Properties.ProjectId.eq(projectId))
-                .build();
-        constructionList = constructionQuery.list();
-        return constructionQuery.list() == null ? 0 : constructionList.size();
+         List<Construction> constructionList = projectList.get(position).getConstructionList();
+        return constructionList == null ? 0 : constructionList.size();
     }
 
     @Override
@@ -79,8 +73,8 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
     }
 
     @Override
-    public Object getChild(int i, int i1) {
-        return constructionList.get(i1);
+    public Object getChild(int position, int i1) {
+        return projectList.get(position).getConstructionList().get(i1);
     }
 
     @Override
@@ -120,7 +114,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
                 popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_CONSTRUCTION,groupPosition);
+                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_CONSTRUCTION,projectList.get(groupPosition).getProjectId());
                         return true;
                     }
                 });
@@ -136,6 +130,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
     public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         // 获取对应二级条目的View  和ListView 的getView相似
         final ConsViewHolder holder;
+        final List<Construction> constructionList = projectList.get(groupPosition).getConstructionList();
         if (convertView == null) {
             convertView = LayoutInflater.from(activity).inflate(R.layout.item_project_menu_detail, null);
             holder = new ConsViewHolder();
@@ -149,7 +144,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
         if (constructionList.size()!=0) {
             holder.txtConsName.setText(constructionList.get(childPosition).getName());
 
-            List<FileContent> fileContentList=queryFile(constructionList.get(childPosition).getConstructionId());
+            List<FileContent> fileContentList=queryFile(constructionList.get(childPosition).getParentID());
             String[] arrayFile=new String[fileContentList.size()];
             for (int i = 0; i < fileContentList.size(); i++) {
                 arrayFile[i]=fileContentList.get(i).getFileName();
@@ -167,7 +162,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
                 popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_FILE,childPosition);
+                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_FILE,constructionList.get(childPosition).getParentID());
                         return true;
                     }
                 });
@@ -198,7 +193,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
 
     private List<FileContent> queryFile(Long constID) {
         Query<FileContent> query=daoSession.getFileContentDao().queryBuilder()
-                .where(FileContentDao.Properties.ConstID.eq(constID)).build();
+                .where(FileContentDao.Properties.ParentID.eq(constID* Constants.CONSTRUCTION_MAX)).build();
 
         return query.list();
     }

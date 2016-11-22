@@ -20,6 +20,7 @@ import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.entries.Construction;
 import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.utils.DateFormat;
 import com.qhn.bhne.footprinting.utils.StatusBarCompat;
 import com.socks.library.KLog;
@@ -184,11 +185,8 @@ public class CreateProjectActivity extends BaseActivity {
     }
 
     private long insertConst() {
-        //工程名称 name 工程时间 date 项目ID projectID
-        KLog.d("category" + category + "\n" + strProfession + "\n" + strVoltageClass);
-        Construction construction = new Construction(null, projectID, "123456", name, category, strProfession, strVoltageClass, null, date);
+        Construction construction = new Construction(null, projectID* Constants.PROJECT_MAX, name, category, currentUser.getName(),strProfession, strVoltageClass, null, date);
         ConstructionDao constructionDao = daoSession.getConstructionDao();
-
         return constructionDao.insert(construction);
 
     }
@@ -209,7 +207,7 @@ public class CreateProjectActivity extends BaseActivity {
         batch = TextUtils.isEmpty(strDefinition) ? 0 : Integer.parseInt(strBatch);
         remark = etProjectRemark.getText().toString();
         describe = etProjectDes.getText().toString();
-        Project project = new Project(null, name, "123456", category, definition, batch, remark, date, describe);
+        Project project = new Project(null, name, currentUser.getName(), category, definition, batch, remark, date, describe);
         ProjectDao projectDao = daoSession.getProjectDao();
         return projectDao.insert(project);
     }

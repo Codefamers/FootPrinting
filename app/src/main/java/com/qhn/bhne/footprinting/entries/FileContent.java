@@ -1,10 +1,10 @@
 package com.qhn.bhne.footprinting.entries;
 
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Keep;
-import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
+import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
 
 /**
@@ -15,12 +15,15 @@ import org.greenrobot.greendao.annotation.Unique;
 public class FileContent {
     @Id(autoincrement = true)
     private Long fileID;//主键id
-    @NotNull
-    private Long constID;//工程id
 
-    @Unique
+
+    @NotNull
+    private Long parentID;//工程id
+
+    @Index(unique = true)
     @NotNull
     private String fileName;//文件名称
+
     @NotNull
     private String userName;//用户id
 
@@ -31,10 +34,10 @@ public class FileContent {
         this.fileID = id;
     }
 
-    @Keep
-    public FileContent(Long fileID,  @NotNull Long constID,  @NotNull String fileName, @NotNull String userName) {
+    @Generated(hash = 431757488)
+    public FileContent(Long fileID, @NotNull Long parentID, @NotNull String fileName, @NotNull String userName) {
         this.fileID = fileID;
-        this.constID = constID;
+        this.parentID = parentID;
         this.fileName = fileName;
         this.userName = userName;
     }
@@ -47,12 +50,12 @@ public class FileContent {
         this.fileID = fileID;
     }
 
-    public Long getConstID() {
-        return this.constID;
+    public Long getParentID() {
+        return this.parentID;
     }
 
-    public void setConstID(Long constID) {
-        this.constID = constID;
+    public void setParentID(Long parentID) {
+        this.parentID = parentID;
     }
 
     public String getFileName() {

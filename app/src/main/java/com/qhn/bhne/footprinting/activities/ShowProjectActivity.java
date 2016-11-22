@@ -25,6 +25,8 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.qhn.bhne.footprinting.App;
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.adapter.ExpandProjectListView;
@@ -34,12 +36,17 @@ import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.entries.Construction;
 import com.qhn.bhne.footprinting.entries.FileContent;
 import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.entries.User;
+import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
 import com.qhn.bhne.footprinting.utils.StatusBarCompat;
+import com.socks.library.KLog;
 
 import org.greenrobot.greendao.query.Query;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import butterknife.BindView;
 
@@ -72,6 +79,7 @@ public class ShowProjectActivity extends BaseActivity
     private List<Project> projectList;
     private long longProjectID;
 
+
     @Override
     protected void initViews() {
         initToolBar();
@@ -101,16 +109,36 @@ public class ShowProjectActivity extends BaseActivity
     private List<Project> queryProjectList() {
         Query<Project> projectQuery = daoSession.getProjectDao()
                 .queryBuilder()
-                .where(ProjectDao.Properties.UserName.eq("123456"))
+                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()))
                 .build();
+        Iterator<Project> iterator=projectQuery.listIterator();
+
+        while(iterator.hasNext()){
+            Project project=iterator.next();
+            List<Construction> constList=queryConstDao(project);
+            project.setConstructionList(constList);
+        }
+
         return projectQuery.list();
+    }
+
+
+    private List<Construction> queryConstDao(Project project) {
+        Long projectId = project.getProjectId();
+        Query<Construction> constructionQuery = daoSession.
+                getConstructionDao()
+                .queryBuilder()
+                .where(ConstructionDao.Properties.ParentID.eq(projectId* Constants.PROJECT_MAX))
+                .build();
+        return constructionQuery.list();
     }
 
     private Project queryProjectUniqe(String projectName) {
         Query<Project> projectQuery = daoSession.getProjectDao()
                 .queryBuilder()
-                .where(ProjectDao.Properties.UserName.eq("123456"), ProjectDao.Properties.Name.eq(projectName))
+                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.Name.eq(projectName))
                 .build();
+
         return projectQuery.unique();
     }
 
@@ -148,7 +176,7 @@ public class ShowProjectActivity extends BaseActivity
 
 
                 if (createCategory == CREATE_FILE) {
-                    FileContent fileContent = new FileContent(null, longProjectID, strProjectName, "123456");
+                    FileContent fileContent = new FileContent(null, longProjectID*Constants.CONSTRUCTION_MAX, strProjectName, currentUser.getName());
                     if (!insertFileContent(fileContent)) {//创建失败
                         showHintIcon(false);
                     }else {//创建成功
@@ -186,6 +214,7 @@ public class ShowProjectActivity extends BaseActivity
             FileContentDao fileContentDao = daoSession.getFileContentDao();
             fileContentDao.insert(fileContent);
         } catch (Exception e) {
+            e.printStackTrace();
             Toast.makeText(this, "创建失败该名称已被注册", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -332,11 +361,11 @@ public class ShowProjectActivity extends BaseActivity
 
 
     @Override
-    public void clickItem(MenuItem menuItem, int createProject, int projectID) {
+    public void clickItem(MenuItem menuItem, int createProject, long projectID) {
         switch (menuItem.getItemId()) {
             case R.id.add_construction:
                 createDialog(createProject);
-                longProjectID = projectID + 1;
+                longProjectID = projectID ;
                 break;
             case R.id.look_info:
                 break;

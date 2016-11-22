@@ -1,13 +1,15 @@
 package com.qhn.bhne.footprinting.entries;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Keep;
-import org.greenrobot.greendao.annotation.NotNull;
+import com.qhn.bhne.footprinting.interfaces.Constants;
 
-import java.util.Date;
+import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.NotNull;
+import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.annotation.Unique;
+
+import java.util.List;
 
 /**
  * Created by qhn
@@ -21,7 +23,6 @@ public class Project {
     @NotNull
     private String name;//项目名称
 
-    @Unique
     @NotNull
     private String userName;//用户名称
 
@@ -31,12 +32,32 @@ public class Project {
     private String remark;//备注
     private String date;//创建日期
     private String describe;
+    private int projectMax;
+    
+    private Long parentID;//工程id
+
+    public Long getParentID() {
+        return parentID;
+    }
+
+    public void setParentID(Long parentID) {
+        this.parentID = parentID;
+    }
+
+    public int getProjectMax() {
+        return projectMax;
+    }
+
+    public void setProjectMax(int projectMax) {
+        this.projectMax = projectMax;
+    }
+
+    @Transient
+    private List<Construction> constructionList;
 
 
-
-    @Keep
-    public Project(Long projectId, @NotNull String name,@NotNull String userName ,String category,
-            int definition, int batch, String remark, String date,String describe) {
+    public Project(Long projectId, @NotNull String name, @NotNull String userName, String category,
+                   int definition, int batch, String remark, String date, String describe) {
         this.projectId = projectId;
         this.name = name;
         this.category = category;
@@ -44,9 +65,12 @@ public class Project {
         this.batch = batch;
         this.remark = remark;
         this.date = date;
-        this.describe=describe;
-        this.userName=userName;
+        this.describe = describe;
+        this.userName = userName;
+        projectMax = Constants.PROJECT_MAX;
+
     }
+
     public String getDescribe() {
         return describe;
     }
@@ -58,11 +82,38 @@ public class Project {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
     public void setDescribe(String describe) {
         this.describe = describe;
     }
+
     @Generated(hash = 1767516619)
     public Project() {
+    }
+
+    @Generated(hash = 1430019966)
+    public Project(Long projectId, @NotNull String name, @NotNull String userName, String category,
+            int definition, int batch, String remark, String date, String describe, int projectMax,
+            Long parentID) {
+        this.projectId = projectId;
+        this.name = name;
+        this.userName = userName;
+        this.category = category;
+        this.definition = definition;
+        this.batch = batch;
+        this.remark = remark;
+        this.date = date;
+        this.describe = describe;
+        this.projectMax = projectMax;
+        this.parentID = parentID;
+    }
+
+    public List<Construction> getConstructionList() {
+        return constructionList;
+    }
+
+    public void setConstructionList(List<Construction> constructionList) {
+        this.constructionList = constructionList;
     }
 
     public String getRemark() {

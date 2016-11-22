@@ -36,16 +36,15 @@ public class User {
     public User(Long id) {
         this.id = id;
     }
-    @Keep
+    @Generated(hash = 37316966)
     public User(Long id, @NotNull String name, @NotNull String password,
-                String headImage, String createTime) {
+            String headImage, String createTime) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.headImage = headImage;
         this.createTime = createTime;
     }
-
 
     public Long getId() {
         return this.id;

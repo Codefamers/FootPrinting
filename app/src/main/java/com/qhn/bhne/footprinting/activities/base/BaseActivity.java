@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.qhn.bhne.footprinting.App;
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.db.DaoSession;
+import com.qhn.bhne.footprinting.entries.User;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.socks.library.KLog;
 
@@ -27,6 +28,8 @@ import butterknife.ButterKnife;
 public abstract class BaseActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     private boolean isToolbar;
     protected DaoSession daoSession;
+    public User currentUser;
+
     public boolean isToolbar() {
         return isToolbar;
     }
@@ -44,7 +47,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
         super.onCreate(savedInstanceState);
         KLog.i(getClass().getSimpleName());
         isNetworkErrThenShowMsg();//网络错误时显示错误信息
-
+        currentUser=((App)getApplicationContext()).getUser();
         int layoutId = getLayoutId();
         setContentView(layoutId);
         ButterKnife.bind(this);

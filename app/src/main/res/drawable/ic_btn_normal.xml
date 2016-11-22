@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+</selector>
+<!--
+
+_normal	(默认状态)
+_pressed	state_pressed
+_focused	state_focused
+_disabled	state_enabled(假)
+_checked	state_checked
+_selected	state_selected
+_hovered	state_hovered
+_checkable	state_checkable
+_activated	state_activated
+_windowfocused	state_window_focused
+
+-->

@@ -1,12 +1,11 @@
 package com.qhn.bhne.footprinting.entries;
 
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Keep;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
 
-import java.util.Date;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Unique;
 
 /**
@@ -18,15 +17,17 @@ public class Construction {
     @Id(autoincrement = true)
     private Long constructionId;//工程id
 
-    @NotNull
-    private Long projectId;//项目id
 
+    @NotNull
+    private Long parentID;//父节点id
+
+    @Index(unique = true)
     @NotNull
     private String name;//工程名称
 
     @NotNull
     private String category;//类别
-    @Unique
+
     @NotNull
     private String userName;//用户名称
     private String profession;//专业
@@ -39,18 +40,18 @@ public class Construction {
     public Construction(Long id) {
         this.constructionId = id;
     }
-    @Keep
-    public Construction(Long constructionId, Long projectId, @NotNull String userName,String name, String category,
-                        String profession, String voltageClass, String remark, String date) {
+    @Generated(hash = 2033462558)
+    public Construction(Long constructionId, @NotNull Long parentID, @NotNull String name, @NotNull String category,
+            @NotNull String userName, String profession, String voltageClass, String remark, String date) {
         this.constructionId = constructionId;
-        this.projectId = projectId;
+        this.parentID = parentID;
         this.name = name;
         this.category = category;
+        this.userName = userName;
         this.profession = profession;
         this.voltageClass = voltageClass;
         this.remark = remark;
         this.date = date;
-        this.userName=userName;
     }
 
     public Long getConstructionId() {
@@ -61,12 +62,12 @@ public class Construction {
         this.constructionId = constructionId;
     }
 
-    public Long getProjectId() {
-        return projectId;
+    public Long getParentID() {
+        return parentID;
     }
 
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
+    public void setParentID(Long parentID) {
+        this.parentID = parentID;
     }
 
     public String getName() {
