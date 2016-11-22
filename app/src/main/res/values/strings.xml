@@ -11,8 +11,7 @@
     <string name="error_incorrect_password">密码不正确</string>
     <string name="error_field_required">该字段不能为空</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+        completions."</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="action_search">搜索</string>
     <string name="action_download">设置</string>
