@@ -57,10 +57,13 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
             setStatusBarTranslucent();
         }*/
          daoSession=((App)getApplication()).getDaoSession();
+        initMapView(savedInstanceState);
         initViews();
 
 
     }
+
+    protected  void initMapView(Bundle savedInstanceState){};
 
 
    /* private void initToolBar() {

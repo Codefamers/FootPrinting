@@ -1,10 +1,12 @@
 package com.qhn.bhne.footprinting.activities;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -23,24 +25,28 @@ import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.qhn.bhne.footprinting.R;
+import com.qhn.bhne.footprinting.activities.base.BaseActivity;
+import com.qhn.bhne.footprinting.utils.StatusBarCompat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+
+import static com.amap.api.maps.AMapOptions.ZOOM_POSITION_RIGHT_BUTTOM;
 
 
-public class MapActivity extends AppCompatActivity implements LocationSource, AMapLocationListener {
+public class MapActivity extends BaseActivity implements LocationSource, AMapLocationListener {
 
 
     @BindView(R.id.map)
     MapView map;
-
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     @BindView(R.id.activity_map)
     RelativeLayout activityMap;
+
     //地图显示
     private AMap aMap;//地图对象
     private MapView mapView;//地图控件
@@ -55,18 +61,14 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
     private UiSettings mUiSettings;//控制地图上的icon
 
     private static final String TAG = "MapActivity";
+    private LatLng latLng;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
-        ButterKnife.bind(this);
-
+    protected void initMapView(Bundle savedInstanceState) {
+        super.initMapView(savedInstanceState);
         mapView = (MapView) findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
         aMap = mapView.getMap();
-
-
         mUiSettings = aMap.getUiSettings();
         //设置点击定位按钮后的回调
         aMap.setLocationSource(this);
@@ -75,12 +77,18 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
         //是否可触发定位并显示定位层
         aMap.setMyLocationEnabled(true);
 
-        //定位的小图标 默认是蓝点 这里自定义一团火，其实就是一张图片
+        //设置层级控制按钮的位置
+        mUiSettings.setZoomPosition(ZOOM_POSITION_RIGHT_BUTTOM);
+
+        mUiSettings.setScaleControlsEnabled(true);
+
+        //定位的小图标 默认是蓝
         MyLocationStyle myLocationStyle = new MyLocationStyle();
-        myLocationStyle.myLocationIcon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
+        myLocationStyle.myLocationIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
         myLocationStyle.radiusFillColor(android.R.color.transparent);
         myLocationStyle.strokeColor(android.R.color.transparent);
         aMap.setMyLocationStyle(myLocationStyle);
+
 
         //开始定位
         initLoc();
@@ -100,8 +108,19 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
             }
         });
 
-
     }
+
+    @Override
+    protected void initViews() {
+        setSupportActionBar(toolbar);
+        StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_map;
+    }
+
 
     private void initLoc() {
         //初始化定位
@@ -129,9 +148,8 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
     private MarkerOptions getMarkerOptions(AMapLocation amapLocation) {
         MarkerOptions markerOption = new MarkerOptions();
         markerOption.position(new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()));
+        markerOption.draggable(true);
 
-        markerOption.icon(BitmapDescriptorFactory.
-                fromResource(R.mipmap.ic_launcher));
         StringBuffer buffer = new StringBuffer();
         buffer.append(amapLocation.getCountry() + "" + amapLocation.getProvince() + "" + amapLocation.getCity()
                 + "" + amapLocation.getDistrict() + "" + amapLocation.getStreet() + "" + amapLocation.getStreetNum());
@@ -201,7 +219,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
                 amapLocation.getStreetNum();//街道门牌号信息
                 amapLocation.getCityCode();//城市编码
                 amapLocation.getAdCode();//地区编码
-                aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+                aMap.moveCamera(CameraUpdateFactory.zoomTo(15));
                 Log.d(TAG, "onLocationChanged: " + amapLocation.getLongitude() + "\n" + amapLocation.getLatitude());
                 // 如果不设置标志位，此时再拖动地图时，它会不断将地图移动到当前的位置
                 if (isFirstLoc) {
@@ -210,7 +228,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
                     //设置缩放级别
 
                     //定位地址
-                    LatLng latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+                    latLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
                     //将地图移动到定位点
                     aMap.moveCamera(CameraUpdateFactory.changeLatLng(latLng));
 
@@ -219,7 +237,7 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
                     locationListener.onLocationChanged(amapLocation);
 
                     //添加图钉
-                    // aMap.addMarker(getMarkerOptions(amapLocation));
+                    //aMap.addMarker(getMarkerOptions(amapLocation));
                     //获取定位信息
                     StringBuffer buffer = new StringBuffer();
                     buffer.append(amapLocation.getCountry() + "" + amapLocation.getProvince() + "" + amapLocation.getCity() + "" + amapLocation.getProvince() + "" + amapLocation.getDistrict() + "" + amapLocation.getStreet() + "" + amapLocation.getStreetNum());
@@ -237,7 +255,44 @@ public class MapActivity extends AppCompatActivity implements LocationSource, AM
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_map, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+       /* //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }*/
+        switch (id) {
+            case R.id.action_collect:
+                aMap.moveCamera(CameraUpdateFactory.changeLatLng(latLng));
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
+    }
 }
 /* public static String sHA1(Context context) {
         try {

@@ -8,6 +8,6 @@ import android.view.MenuItem;
  */
 
 public interface PopClickItemCallBack {
-    void clickItem(MenuItem menuItem,int createCategory,long projectID);
+    void clickItem(MenuItem menuItem,int createCategory,long parentID,long itemID);
     //void clickListItem(MenuItem menuItem,int createCategory,int position);
 }

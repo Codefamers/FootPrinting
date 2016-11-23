@@ -14,7 +14,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="16dp"
             android:layout_weight="1"
             android:padding="16dp"
             android:text="工程详情"
@@ -27,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_gravity="center"
-            android:padding="8dp"
+            android:paddingRight="8dp"
             android:src="@mipmap/ic_more_vert_white_24dp"
             android:tint="@color/alpha_55_black" />
     </LinearLayout>
@@ -35,6 +36,8 @@
     <ListView
         android:id="@+id/lv_file_name"
         android:layout_width="match_parent"
+        android:layout_marginLeft="32dp"
+        android:layout_marginBottom="16dp"
         android:layout_height="match_parent"
         android:layout_below="@id/ll_const_info"
         android:visibility="gone" />

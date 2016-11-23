@@ -20,11 +20,14 @@ import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.entries.Construction;
 import com.qhn.bhne.footprinting.entries.Project;
-import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.utils.DateFormat;
 import com.qhn.bhne.footprinting.utils.StatusBarCompat;
 import com.socks.library.KLog;
 
+import org.greenrobot.greendao.query.Query;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import butterknife.BindView;
@@ -33,6 +36,7 @@ import static android.view.View.GONE;
 
 public class CreateProjectActivity extends BaseActivity {
     public static final int RESULT_CREATE_CONST = 201;
+    public static final int RESULT_UPDATE_CONST = 202;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.txt_project_name)
@@ -78,17 +82,18 @@ public class CreateProjectActivity extends BaseActivity {
     private Intent intent;
     private String strProfession;
     private String strVoltageClass;
-    private Long projectID;
+    private long parentID;
+    private long itemID;
+    private ProjectDao projectDao;
+    private ConstructionDao constDao;
+
+    private Construction construction;
+    private Project project;
 
     @Override
     protected void initViews() {
-        intent = getIntent();
-        name = intent.getStringExtra("PROJECT_NAME");
-        createCategory = intent.getIntExtra("EVENT_CATEGORY", 0);
-        projectID = intent.getLongExtra("PROJECT_ID", 4);
-        txtProjectName.setText(name);
-        date = DateFormat.dateFormat(new Date());
-        txtProjectEditTime.setText(date);
+        initData();
+
         if (createCategory == ShowProjectActivity.CREATE_PROJECT) {
             llConstInfo.setVisibility(GONE);
             spProjectCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -99,7 +104,6 @@ public class CreateProjectActivity extends BaseActivity {
                         category = getResources().getStringArray(R.array.project_category)[position];
                     }
                 }
-
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                     //未选中时候的操作
@@ -163,15 +167,118 @@ public class CreateProjectActivity extends BaseActivity {
         initFab();
     }
 
+    private void initData() {
+        projectDao = daoSession.getProjectDao();
+        constDao = daoSession.getConstructionDao();
+        intent = getIntent();
+        name = intent.getStringExtra("PROJECT_NAME");
+        createCategory = intent.getIntExtra("EVENT_CATEGORY", 0);
+        parentID = intent.getLongExtra("PROJECT_ID", -1);
+        itemID = intent.getLongExtra("ITEM_ID", -1);
+        if (itemID!=-1) //查看信息
+            lookInfo();
+        else //创建信息
+            editInfo();
+
+        txtProjectEditTime.setText(date);
+        txtProjectName.setText(name);
+    }
+
+    private void editInfo() {
+        date = DateFormat.dateFormat(new Date());
+    }
+
+    private void lookInfo() {
+
+        if (createCategory==ShowProjectActivity.CREATE_PROJECT) {//查看项目信息
+            project = queryProjectUnique(itemID);
+            name = project.getName();
+            initProjectData();
+        } else {
+            construction = queryConstUnique(itemID);
+            name = construction.getName();
+            initConstData();
+        }
+    }
+
+
+    private void initProjectData() {
+        if (project.getBatch() != 0) {
+            etProjectBatch.setText(String.valueOf(project.getBatch()));
+        }
+        if (TextUtils.isEmpty(project.getCategory())) {
+            String[] array = getResources().getStringArray(R.array.project_category);
+            spProjectCategory.setSelection(Arrays.asList(array).indexOf(project.getCategory()));
+        }
+        if (project.getDefinition() != 0) {
+            etProjectNum.setText(String.valueOf(project.getDefinition()));
+        }
+        if (TextUtils.isEmpty(project.getDescribe())) {
+            etProjectDes.setText(project.getDescribe());
+        }
+        if (TextUtils.isEmpty(project.getRemark())) {
+            etProjectRemark.setText(project.getRemark());
+        }
+        date = project.getDate();
+    }
+
+    private void initConstData() {
+        name = construction.getName();
+        date = construction.getDate();
+
+        String[] array = getResources().getStringArray(R.array.const_category);
+
+        spConstCategory.setSelection(Arrays.asList(array).indexOf(construction.getCategory()));
+
+        String[] arrayTwo = getResources().getStringArray(R.array.profession_category);
+
+        spConstProfessionCategory.setSelection(Arrays.asList(arrayTwo).indexOf(construction.getProfession()));
+
+
+        String[] arrayThree = getResources().getStringArray(R.array.press_level);
+
+        spPressLevel.setSelection(Arrays.asList(arrayThree).indexOf(construction.getVoltageClass()));
+    }
+
+    private Construction queryConstUnique(long itemID) {
+        Query<Construction> constructionQuery = constDao
+                .queryBuilder()
+                .where(ConstructionDao.Properties.ConstructionId.eq(itemID))
+                .build();
+        return constructionQuery.unique();
+
+    }
+
+    private Project queryProjectUnique(Long id) {
+        Query<Project> projectQuery = projectDao
+                .queryBuilder()
+                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.ProjectId.eq(id))
+                .build();
+
+        return projectQuery.unique();
+    }
+
     private void initFab() {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (createCategory == ShowProjectActivity.CREATE_PROJECT)
-                    createProject(view);
-                else
-                    createCons(view);
+                if (itemID==-1) {//创建信息
+                    if (createCategory == ShowProjectActivity.CREATE_PROJECT)
+                        createProject(view);
+                    else
+                        createCons(view);
+                }else {
+                    if (createCategory == ShowProjectActivity.CREATE_PROJECT)
+                        updateProject();
+                    else
+                        updateCons();
+                    setResult(RESULT_UPDATE_CONST, intent);
+                    finish();
+                }
+
             }
+
+
         });
     }
 
@@ -185,7 +292,7 @@ public class CreateProjectActivity extends BaseActivity {
     }
 
     private long insertConst() {
-        Construction construction = new Construction(null, projectID* Constants.PROJECT_MAX, name, category, currentUser.getName(),strProfession, strVoltageClass, null, date);
+        Construction construction = new Construction(null, parentID, name, category, currentUser.getName(), strProfession, strVoltageClass, null, date);
         ConstructionDao constructionDao = daoSession.getConstructionDao();
         return constructionDao.insert(construction);
 
@@ -201,15 +308,33 @@ public class CreateProjectActivity extends BaseActivity {
     }
 
     private Long insertProject() {
+        getViewProjectData();
+        Project project = new Project(null, name, currentUser.getName(), category, definition, batch, remark, date, describe);
+        return projectDao.insert(project);
+    }
+    private void updateProject(){
+        getViewProjectData();
+        project.setDefinition(definition);
+        project.setBatch(batch);
+        project.setRemark(remark);
+        project.setCategory(category);
+        project.setDescribe(describe);
+        projectDao.update(project);
+    }
+    private void updateCons() {
+
+        construction.setCategory(category);
+        construction.setProfession(strProfession);
+        construction.setVoltageClass(strVoltageClass);
+        constDao.update(construction);
+    }
+    private void getViewProjectData() {
         String strDefinition = etProjectNum.getText().toString();
         String strBatch = etProjectBatch.getText().toString();
         definition = TextUtils.isEmpty(strDefinition) ? 0 : Integer.parseInt(strDefinition);
         batch = TextUtils.isEmpty(strDefinition) ? 0 : Integer.parseInt(strBatch);
         remark = etProjectRemark.getText().toString();
         describe = etProjectDes.getText().toString();
-        Project project = new Project(null, name, currentUser.getName(), category, definition, batch, remark, date, describe);
-        ProjectDao projectDao = daoSession.getProjectDao();
-        return projectDao.insert(project);
     }
 
     private void initToolBar() {

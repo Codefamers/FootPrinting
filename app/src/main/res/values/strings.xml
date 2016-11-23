@@ -35,4 +35,6 @@
     <string name="addConstruction">添加工程</string>
     <string name="look_info">查看信息</string>
     <string name="preference_file_key">app配置信息</string>
+    <string name="action_collect">收藏</string>
+    <string name="action_edit">编辑</string>
 </resources>
