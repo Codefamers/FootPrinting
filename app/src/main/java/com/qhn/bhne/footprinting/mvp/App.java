@@ -1,12 +1,15 @@
-package com.qhn.bhne.footprinting;
+package com.qhn.bhne.footprinting.mvp;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.db.DaoMaster;
 import com.qhn.bhne.footprinting.db.DaoSession;
-import com.qhn.bhne.footprinting.entries.User;
+import com.qhn.bhne.footprinting.di.module.ApplicationModule;
+import com.qhn.bhne.footprinting.mvp.entries.User;
+import com.socks.library.KLog;
 
 import org.greenrobot.greendao.database.Database;
 
@@ -17,12 +20,13 @@ import org.greenrobot.greendao.database.Database;
  */
 
 public class App extends Application {
-    public static final boolean ENCRYPTED=true;
+    public static final boolean ENCRYPTED=false;
     private DaoSession daoSession;
     public static Context appContext;
 
     private  String userName;
     private String userPassword;
+   // private  mApplicationComponent;
 
     public SharedPreferences getSharedPre() {
         return sharedPre;
@@ -72,9 +76,16 @@ public class App extends Application {
         super.onCreate();
         appContext=this;
         initDB();
+        initApplicationComponent();
         initUser();
 
     }
+
+    private void initApplicationComponent() {
+
+    }
+
+
 
     private void initUser() {
         sharedPre=getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
@@ -87,6 +98,8 @@ public class App extends Application {
         DaoMaster.DevOpenHelper helper=new DaoMaster.DevOpenHelper(this,
                 ENCRYPTED?"notes-db-encrypted":"notes-db");
         Database db=ENCRYPTED?helper.getEncryptedWritableDb("super-secret"):helper.getWritableDb();
-        daoSession=new DaoMaster(db).newSession();
+        DaoMaster daoMaster=new DaoMaster(db);
+        daoSession=daoMaster.newSession();
+        KLog.d("App"+daoMaster.getDatabase());
     }
 }

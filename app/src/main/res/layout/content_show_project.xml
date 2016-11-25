@@ -10,7 +10,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.qhn.bhne.footprinting.activities.ShowProjectActivity"
+    tools:context="com.qhn.bhne.footprinting.mvp.ui.activities.ShowProjectActivity"
     tools:showIn="@layout/app_bar_show_project">
     <ExpandableListView
         android:id="@+id/exl_project"

@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.activities.base;
+package com.qhn.bhne.footprinting.mvp.ui.activities.base;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -11,10 +11,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.qhn.bhne.footprinting.App;
+import com.qhn.bhne.footprinting.di.component.ActivityComponent;
+import com.qhn.bhne.footprinting.di.module.ActivityModule;
+import com.qhn.bhne.footprinting.mvp.App;
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.db.DaoSession;
-import com.qhn.bhne.footprinting.entries.User;
+import com.qhn.bhne.footprinting.mvp.entries.User;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.socks.library.KLog;
 
@@ -29,6 +31,15 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
     private boolean isToolbar;
     protected DaoSession daoSession;
     public User currentUser;
+    protected ActivityComponent mActivityComponent;
+
+    public ActivityComponent getmActivityComponent() {
+        return mActivityComponent;
+    }
+
+    public void setmActivityComponent(ActivityComponent mActivityComponent) {
+        this.mActivityComponent = mActivityComponent;
+    }
 
     public boolean isToolbar() {
         return isToolbar;
@@ -41,7 +52,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
     protected abstract void initViews();
 
     protected abstract int getLayoutId();
-
+    //protected abstract void initInjector();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,17 +62,18 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
         int layoutId = getLayoutId();
         setContentView(layoutId);
         ButterKnife.bind(this);
-
-       /* if (isToolbar) {
-            initToolBar();
-            setStatusBarTranslucent();
-        }*/
-         daoSession=((App)getApplication()).getDaoSession();
+        initActivityComponent();
+        daoSession=((App)getApplication()).getDaoSession();
         initMapView(savedInstanceState);
         initViews();
 
-
+        
     }
+
+    private void initActivityComponent() {
+       //mActivityComponent=Dagg
+    }
+
 
     protected  void initMapView(Bundle savedInstanceState){};
 

@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.adapter;
+package com.qhn.bhne.footprinting.mvp.ui.adapter;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.entries.FileContent;
+import com.qhn.bhne.footprinting.mvp.entries.FileContent;
 
 import java.util.List;
 

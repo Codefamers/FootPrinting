@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.activities;
+package com.qhn.bhne.footprinting.mvp.ui.activities;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -19,16 +19,15 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.qhn.bhne.footprinting.App;
+import com.qhn.bhne.footprinting.mvp.App;
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.activities.base.BaseActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.db.UserDao;
-import com.qhn.bhne.footprinting.entries.User;
+import com.qhn.bhne.footprinting.mvp.entries.User;
 import com.qhn.bhne.footprinting.utils.DateFormat;
 import com.socks.library.KLog;
 

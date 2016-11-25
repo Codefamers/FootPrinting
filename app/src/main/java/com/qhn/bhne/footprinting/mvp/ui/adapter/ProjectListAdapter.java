@@ -1,26 +1,19 @@
-package com.qhn.bhne.footprinting.adapter;
+package com.qhn.bhne.footprinting.mvp.ui.adapter;
 
-import android.app.Activity;
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.entries.Construction;
-import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.mvp.entries.Construction;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**

@@ -1,6 +1,6 @@
 package com.qhn.bhne.footprinting.interfaces;
 
-import com.qhn.bhne.footprinting.entries.FileContent;
+import com.qhn.bhne.footprinting.mvp.entries.FileContent;
 
 /**
  * Created by qhn

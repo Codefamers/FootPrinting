@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.entries;
+package com.qhn.bhne.footprinting.mvp.entries;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;

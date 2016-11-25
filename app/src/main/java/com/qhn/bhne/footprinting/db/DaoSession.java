@@ -8,10 +8,10 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
-import com.qhn.bhne.footprinting.entries.Construction;
-import com.qhn.bhne.footprinting.entries.FileContent;
-import com.qhn.bhne.footprinting.entries.Project;
-import com.qhn.bhne.footprinting.entries.User;
+import com.qhn.bhne.footprinting.mvp.entries.Construction;
+import com.qhn.bhne.footprinting.mvp.entries.FileContent;
+import com.qhn.bhne.footprinting.mvp.entries.Project;
+import com.qhn.bhne.footprinting.mvp.entries.User;
 
 import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.FileContentDao;

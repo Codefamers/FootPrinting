@@ -7,7 +7,7 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.qhn.bhne.footprinting.activities.LoginActivity">
+    tools:context="com.qhn.bhne.footprinting.mvp.ui.activities.LoginActivity">
 
 
 

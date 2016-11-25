@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.qhn.bhne.footprinting.activities.CreateProjectActivity">
+    tools:context="com.qhn.bhne.footprinting.mvp.ui.activities.CreateProjectActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -24,7 +24,7 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="com.qhn.bhne.footprinting.activities.CreateProjectActivity">
+        tools:context="com.qhn.bhne.footprinting.mvp.ui.activities.CreateProjectActivity">
 
         <LinearLayout
             android:id="@+id/activity_create_project"

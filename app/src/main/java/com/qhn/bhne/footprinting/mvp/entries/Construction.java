@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.entries;
+package com.qhn.bhne.footprinting.mvp.entries;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -16,7 +16,6 @@ import org.greenrobot.greendao.annotation.Unique;
 public class Construction {
     @Id(autoincrement = true)
     private Long constructionId;//工程id
-
 
     @NotNull
     private Long parentID;//父节点id

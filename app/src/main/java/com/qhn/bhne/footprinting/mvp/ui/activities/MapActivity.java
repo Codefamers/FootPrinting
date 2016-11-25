@@ -1,12 +1,10 @@
-package com.qhn.bhne.footprinting.activities;
+package com.qhn.bhne.footprinting.mvp.ui.activities;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -25,7 +23,7 @@ import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.activities.base.BaseActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.utils.StatusBarCompat;
 
 import java.text.SimpleDateFormat;

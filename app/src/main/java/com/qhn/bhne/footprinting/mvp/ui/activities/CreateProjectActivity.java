@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.activities;
+package com.qhn.bhne.footprinting.mvp.ui.activities;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
@@ -15,18 +15,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.activities.base.BaseActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
-import com.qhn.bhne.footprinting.entries.Construction;
-import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.mvp.entries.Construction;
+import com.qhn.bhne.footprinting.mvp.entries.Project;
 import com.qhn.bhne.footprinting.utils.DateFormat;
 import com.qhn.bhne.footprinting.utils.StatusBarCompat;
 import com.socks.library.KLog;
 
 import org.greenrobot.greendao.query.Query;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 

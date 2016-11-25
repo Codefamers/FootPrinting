@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.activities;
+package com.qhn.bhne.footprinting.mvp.ui.activities;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -25,17 +25,18 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.activities.base.BaseActivity;
-import com.qhn.bhne.footprinting.adapter.ExpandProjectListView;
+import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
+import com.qhn.bhne.footprinting.mvp.ui.adapter.ExpandProjectListView;
 import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.FileContentDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
-import com.qhn.bhne.footprinting.entries.Construction;
-import com.qhn.bhne.footprinting.entries.FileContent;
-import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.mvp.entries.Construction;
+import com.qhn.bhne.footprinting.mvp.entries.FileContent;
+import com.qhn.bhne.footprinting.mvp.entries.Project;
 import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
 import com.qhn.bhne.footprinting.utils.StatusBarCompat;
+import com.socks.library.KLog;
 
 import org.greenrobot.greendao.query.Query;
 
@@ -84,7 +85,6 @@ public class ShowProjectActivity extends BaseActivity
         initDrawerLayout();
         initExpandableListView();
 
-
     }
 
     //初始化工具栏
@@ -101,7 +101,7 @@ public class ShowProjectActivity extends BaseActivity
 
     private void initExpandableListView() {
         projectList = queryProjectList();
-        expandableListAdapter = new ExpandProjectListView(this, projectList, daoSession, this);
+        expandableListAdapter = new ExpandProjectListView(projectList, daoSession, this);
         exlProject.setAdapter(expandableListAdapter);
     }
 
@@ -196,7 +196,7 @@ public class ShowProjectActivity extends BaseActivity
     private boolean insertFileContent(FileContent fileContent) {
         try {
 
-            fileContentDao.insert(fileContent);
+            fileContentDao.save(fileContent);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "创建失败该名称已被注册", Toast.LENGTH_SHORT).show();

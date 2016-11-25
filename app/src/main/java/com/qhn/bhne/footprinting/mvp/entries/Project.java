@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.entries;
+package com.qhn.bhne.footprinting.mvp.entries;
 
 import com.qhn.bhne.footprinting.interfaces.Constants;
 
@@ -7,7 +7,6 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Transient;
-import org.greenrobot.greendao.annotation.Unique;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  * Created by qhn
  * on 2016/11/15 0015.
  */
-@Entity(nameInDb = "PROJECT")
+@Entity
 public class Project {
     @Id(autoincrement = true)
     private Long projectId;

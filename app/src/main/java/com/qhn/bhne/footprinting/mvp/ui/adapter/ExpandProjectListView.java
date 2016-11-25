@@ -1,4 +1,4 @@
-package com.qhn.bhne.footprinting.adapter;
+package com.qhn.bhne.footprinting.mvp.ui.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,13 +15,13 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.activities.MapActivity;
-import com.qhn.bhne.footprinting.activities.ShowProjectActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.MapActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.ShowProjectActivity;
 import com.qhn.bhne.footprinting.db.DaoSession;
 import com.qhn.bhne.footprinting.db.FileContentDao;
-import com.qhn.bhne.footprinting.entries.Construction;
-import com.qhn.bhne.footprinting.entries.FileContent;
-import com.qhn.bhne.footprinting.entries.Project;
+import com.qhn.bhne.footprinting.mvp.entries.Construction;
+import com.qhn.bhne.footprinting.mvp.entries.FileContent;
+import com.qhn.bhne.footprinting.mvp.entries.Project;
 import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.interfaces.CreateFileCallBack;
 import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
@@ -29,6 +29,8 @@ import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
 import org.greenrobot.greendao.query.Query;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Created by qhn
@@ -38,12 +40,13 @@ import java.util.List;
 public class ExpandProjectListView extends BaseExpandableListAdapter implements CreateFileCallBack {
 
     private List<Project> projectList;
-    private Activity activity;
+
     private DaoSession daoSession;
     private PopClickItemCallBack callBack;
     private FileListAdapter adapter;
-
-    public ExpandProjectListView(Activity activity, List<Project> projectList, DaoSession daoSession, PopClickItemCallBack itemCallBack) {
+    @Inject
+    Activity activity;
+    public ExpandProjectListView( List<Project> projectList, DaoSession daoSession, PopClickItemCallBack itemCallBack) {
         this.activity = activity;
         this.projectList = projectList;
         this.daoSession = daoSession;
