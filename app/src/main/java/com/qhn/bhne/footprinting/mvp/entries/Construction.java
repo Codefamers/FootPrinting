@@ -4,9 +4,17 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
+import org.greenrobot.greendao.annotation.JoinProperty;
 import org.greenrobot.greendao.annotation.NotNull;
+import org.greenrobot.greendao.annotation.OrderBy;
+import org.greenrobot.greendao.annotation.ToMany;
+import org.greenrobot.greendao.annotation.Transient;
 
-import org.greenrobot.greendao.annotation.Unique;
+import java.util.List;
+import org.greenrobot.greendao.DaoException;
+import com.qhn.bhne.footprinting.db.DaoSession;
+import com.qhn.bhne.footprinting.db.FileContentDao;
+import com.qhn.bhne.footprinting.db.ConstructionDao;
 
 /**
  * Created by qhn
@@ -15,10 +23,9 @@ import org.greenrobot.greendao.annotation.Unique;
 @Entity
 public class Construction {
     @Id(autoincrement = true)
-    private Long constructionId;//工程id
-
+    private Long id;//工程id
     @NotNull
-    private Long parentID;//父节点id
+    private Long projectId;//父节点id
 
     @Index(unique = true)
     @NotNull
@@ -29,21 +36,60 @@ public class Construction {
 
     @NotNull
     private String userName;//用户名称
+    @NotNull
     private String profession;//专业
+    @NotNull
     private String voltageClass;//电压等级
+    @ToMany(joinProperties = {@JoinProperty(name = "id", referencedName = "parentID")})
+    @OrderBy("date ASC")
+    private List<FileContent> fileContentList;
+
+
     private String remark;//备注
     private String date;
+
+    /** Used to resolve relations */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+
+    /** Used for active entity operations. */
+    @Generated(hash = 1539718505)
+    private transient ConstructionDao myDao;
+
     public Construction() {
     }
 
     public Construction(Long id) {
-        this.constructionId = id;
+        this.id = id;
     }
-    @Generated(hash = 2033462558)
-    public Construction(Long constructionId, @NotNull Long parentID, @NotNull String name, @NotNull String category,
-            @NotNull String userName, String profession, String voltageClass, String remark, String date) {
-        this.constructionId = constructionId;
-        this.parentID = parentID;
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 63035208)
+    public List<FileContent> getFileContentList() {
+        if (fileContentList == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            FileContentDao targetDao = daoSession.getFileContentDao();
+            List<FileContent> fileContentListNew = targetDao._queryConstruction_FileContentList(id);
+            synchronized (this) {
+                if (fileContentList == null) {
+                    fileContentList = fileContentListNew;
+                }
+            }
+        }
+        return fileContentList;
+    }
+
+    @Generated(hash = 477724926)
+    public Construction(Long id, @NotNull Long projectId, @NotNull String name, @NotNull String category,
+            @NotNull String userName, @NotNull String profession, @NotNull String voltageClass, String remark,
+            String date) {
+        this.id = id;
+        this.projectId = projectId;
         this.name = name;
         this.category = category;
         this.userName = userName;
@@ -53,20 +99,20 @@ public class Construction {
         this.date = date;
     }
 
-    public Long getConstructionId() {
-        return constructionId;
+    public Long getId() {
+        return id;
     }
 
-    public void setConstructionId(Long constructionId) {
-        this.constructionId = constructionId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Long getParentID() {
-        return parentID;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setParentID(Long parentID) {
-        this.parentID = parentID;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
     public String getName() {
@@ -123,5 +169,54 @@ public class Construction {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1191791643)
+    public synchronized void resetFileContentList() {
+        fileContentList = null;
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 128553479)
+    public void delete() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.delete(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 1942392019)
+    public void refresh() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.refresh(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 713229351)
+    public void update() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.update(this);
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 996948775)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getConstructionDao() : null;
     }
 }

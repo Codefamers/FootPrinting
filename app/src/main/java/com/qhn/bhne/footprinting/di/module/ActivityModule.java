@@ -4,8 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 
 
+import com.qhn.bhne.footprinting.db.ConstructionDao;
+import com.qhn.bhne.footprinting.db.DaoSession;
+import com.qhn.bhne.footprinting.db.FileContentDao;
+import com.qhn.bhne.footprinting.db.ProjectDao;
+import com.qhn.bhne.footprinting.db.UserDao;
 import com.qhn.bhne.footprinting.di.scope.ContextLife;
 import com.qhn.bhne.footprinting.di.scope.PerActivity;
+import com.qhn.bhne.footprinting.mvp.App;
 
 import dagger.Module;
 import dagger.Provides;
@@ -20,9 +26,13 @@ import dagger.Provides;
 @Module
 public class ActivityModule {
     private Activity activity;
+    private DaoSession daoSession;
+    //private User user;
 
     public ActivityModule(Activity activity) {
         this.activity = activity;
+        daoSession= ((App) activity.getApplication()).getDaoSession();
+        //this.user=user;
     }
 
     @Provides
@@ -37,4 +47,35 @@ public class ActivityModule {
     public Activity ProvideActivity() {
         return activity;
     }
+
+
+    @Provides
+    public ProjectDao ProvideProjectDao() {
+        return daoSession.getProjectDao();
+    }
+
+
+    @Provides
+    public ConstructionDao ProvideConstructionDao() {
+        return daoSession.getConstructionDao();
+    }
+
+
+    @Provides
+    public UserDao ProvidesUserDao() {
+        return daoSession.getUserDao();
+    }
+
+
+    @Provides
+    public FileContentDao ProvideFileContentDao() {
+        return daoSession.getFileContentDao();
+    }
+
+/*
+    @Provides
+    public User provideUser(UserDao userDao) {
+
+        return e;
+    }*/
 }

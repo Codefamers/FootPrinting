@@ -1,5 +1,6 @@
 package com.qhn.bhne.footprinting.db;
 
+import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -8,6 +9,8 @@ import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
+import org.greenrobot.greendao.query.Query;
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
 
@@ -24,8 +27,8 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property ConstructionId = new Property(0, Long.class, "constructionId", true, "_id");
-        public final static Property ParentID = new Property(1, Long.class, "parentID", false, "PARENT_ID");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property ProjectId = new Property(1, Long.class, "projectId", false, "PROJECT_ID");
         public final static Property Name = new Property(2, String.class, "name", false, "NAME");
         public final static Property Category = new Property(3, String.class, "category", false, "CATEGORY");
         public final static Property UserName = new Property(4, String.class, "userName", false, "USER_NAME");
@@ -35,6 +38,9 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
         public final static Property Date = new Property(8, String.class, "date", false, "DATE");
     }
 
+    private DaoSession daoSession;
+
+    private Query<Construction> project_ConstructionListQuery;
 
     public ConstructionDao(DaoConfig config) {
         super(config);
@@ -42,19 +48,20 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
     
     public ConstructionDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"CONSTRUCTION\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: constructionId
-                "\"PARENT_ID\" INTEGER NOT NULL ," + // 1: parentID
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
+                "\"PROJECT_ID\" INTEGER NOT NULL ," + // 1: projectId
                 "\"NAME\" TEXT NOT NULL ," + // 2: name
                 "\"CATEGORY\" TEXT NOT NULL ," + // 3: category
                 "\"USER_NAME\" TEXT NOT NULL ," + // 4: userName
-                "\"PROFESSION\" TEXT," + // 5: profession
-                "\"VOLTAGE_CLASS\" TEXT," + // 6: voltageClass
+                "\"PROFESSION\" TEXT NOT NULL ," + // 5: profession
+                "\"VOLTAGE_CLASS\" TEXT NOT NULL ," + // 6: voltageClass
                 "\"REMARK\" TEXT," + // 7: remark
                 "\"DATE\" TEXT);"); // 8: date
         // Add Indexes
@@ -72,24 +79,16 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
     protected final void bindValues(DatabaseStatement stmt, Construction entity) {
         stmt.clearBindings();
  
-        Long constructionId = entity.getConstructionId();
-        if (constructionId != null) {
-            stmt.bindLong(1, constructionId);
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
         }
-        stmt.bindLong(2, entity.getParentID());
+        stmt.bindLong(2, entity.getProjectId());
         stmt.bindString(3, entity.getName());
         stmt.bindString(4, entity.getCategory());
         stmt.bindString(5, entity.getUserName());
- 
-        String profession = entity.getProfession();
-        if (profession != null) {
-            stmt.bindString(6, profession);
-        }
- 
-        String voltageClass = entity.getVoltageClass();
-        if (voltageClass != null) {
-            stmt.bindString(7, voltageClass);
-        }
+        stmt.bindString(6, entity.getProfession());
+        stmt.bindString(7, entity.getVoltageClass());
  
         String remark = entity.getRemark();
         if (remark != null) {
@@ -106,24 +105,16 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
     protected final void bindValues(SQLiteStatement stmt, Construction entity) {
         stmt.clearBindings();
  
-        Long constructionId = entity.getConstructionId();
-        if (constructionId != null) {
-            stmt.bindLong(1, constructionId);
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
         }
-        stmt.bindLong(2, entity.getParentID());
+        stmt.bindLong(2, entity.getProjectId());
         stmt.bindString(3, entity.getName());
         stmt.bindString(4, entity.getCategory());
         stmt.bindString(5, entity.getUserName());
- 
-        String profession = entity.getProfession();
-        if (profession != null) {
-            stmt.bindString(6, profession);
-        }
- 
-        String voltageClass = entity.getVoltageClass();
-        if (voltageClass != null) {
-            stmt.bindString(7, voltageClass);
-        }
+        stmt.bindString(6, entity.getProfession());
+        stmt.bindString(7, entity.getVoltageClass());
  
         String remark = entity.getRemark();
         if (remark != null) {
@@ -137,6 +128,12 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
     }
 
     @Override
+    protected final void attachEntity(Construction entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
+    }
+
+    @Override
     public Long readKey(Cursor cursor, int offset) {
         return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
@@ -144,13 +141,13 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
     @Override
     public Construction readEntity(Cursor cursor, int offset) {
         Construction entity = new Construction( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // constructionId
-            cursor.getLong(offset + 1), // parentID
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.getLong(offset + 1), // projectId
             cursor.getString(offset + 2), // name
             cursor.getString(offset + 3), // category
             cursor.getString(offset + 4), // userName
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // profession
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // voltageClass
+            cursor.getString(offset + 5), // profession
+            cursor.getString(offset + 6), // voltageClass
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // remark
             cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // date
         );
@@ -159,27 +156,27 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
      
     @Override
     public void readEntity(Cursor cursor, Construction entity, int offset) {
-        entity.setConstructionId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setParentID(cursor.getLong(offset + 1));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setProjectId(cursor.getLong(offset + 1));
         entity.setName(cursor.getString(offset + 2));
         entity.setCategory(cursor.getString(offset + 3));
         entity.setUserName(cursor.getString(offset + 4));
-        entity.setProfession(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setVoltageClass(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setProfession(cursor.getString(offset + 5));
+        entity.setVoltageClass(cursor.getString(offset + 6));
         entity.setRemark(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setDate(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
      }
     
     @Override
     protected final Long updateKeyAfterInsert(Construction entity, long rowId) {
-        entity.setConstructionId(rowId);
+        entity.setId(rowId);
         return rowId;
     }
     
     @Override
     public Long getKey(Construction entity) {
         if(entity != null) {
-            return entity.getConstructionId();
+            return entity.getId();
         } else {
             return null;
         }
@@ -187,7 +184,7 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
 
     @Override
     public boolean hasKey(Construction entity) {
-        return entity.getConstructionId() != null;
+        return entity.getId() != null;
     }
 
     @Override
@@ -195,4 +192,19 @@ public class ConstructionDao extends AbstractDao<Construction, Long> {
         return true;
     }
     
+    /** Internal query to resolve the "constructionList" to-many relationship of Project. */
+    public List<Construction> _queryProject_ConstructionList(Long projectId) {
+        synchronized (this) {
+            if (project_ConstructionListQuery == null) {
+                QueryBuilder<Construction> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.ProjectId.eq(null));
+                queryBuilder.orderRaw("T.'DATE' ASC");
+                project_ConstructionListQuery = queryBuilder.build();
+            }
+        }
+        Query<Construction> query = project_ConstructionListQuery.forCurrentThread();
+        query.setParameter(0, projectId);
+        return query.list();
+    }
+
 }

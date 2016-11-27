@@ -5,7 +5,6 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Unique;
 import org.greenrobot.greendao.DaoException;
 import com.qhn.bhne.footprinting.db.DaoSession;
 import com.qhn.bhne.footprinting.db.FileContentDao;
@@ -29,8 +28,8 @@ public class FileContent {
 
     @NotNull
     private String userName;//用户id
-
-
+    @NotNull
+    private String date;
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -47,13 +46,17 @@ public class FileContent {
         this.fileID = id;
     }
 
-    @Generated(hash = 431757488)
-    public FileContent(Long fileID, @NotNull Long parentID, @NotNull String fileName, @NotNull String userName) {
+    @Generated(hash = 464939423)
+    public FileContent(Long fileID, @NotNull Long parentID, @NotNull String fileName,
+            @NotNull String userName, @NotNull String date) {
         this.fileID = fileID;
         this.parentID = parentID;
         this.fileName = fileName;
         this.userName = userName;
+        this.date = date;
     }
+
+    
 
     public Long getFileID() {
         return this.fileID;
@@ -128,5 +131,13 @@ public class FileContent {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getFileContentDao() : null;
+    }
+
+    public String getDate() {
+        return this.date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

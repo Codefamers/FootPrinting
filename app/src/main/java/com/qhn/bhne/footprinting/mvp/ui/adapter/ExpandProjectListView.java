@@ -1,6 +1,6 @@
 package com.qhn.bhne.footprinting.mvp.ui.adapter;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -15,22 +15,21 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.mvp.ui.activities.MapActivity;
-import com.qhn.bhne.footprinting.mvp.ui.activities.ShowProjectActivity;
 import com.qhn.bhne.footprinting.db.DaoSession;
 import com.qhn.bhne.footprinting.db.FileContentDao;
+import com.qhn.bhne.footprinting.mvp.ui.activities.MapActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.ShowProjectActivity;
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
 import com.qhn.bhne.footprinting.mvp.entries.FileContent;
 import com.qhn.bhne.footprinting.mvp.entries.Project;
 import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.interfaces.CreateFileCallBack;
 import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
+import com.socks.library.KLog;
 
 import org.greenrobot.greendao.query.Query;
 
 import java.util.List;
-
-import javax.inject.Inject;
 
 /**
  * Created by qhn
@@ -44,10 +43,9 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
     private DaoSession daoSession;
     private PopClickItemCallBack callBack;
     private FileListAdapter adapter;
-    @Inject
-    Activity activity;
+
     public ExpandProjectListView( List<Project> projectList, DaoSession daoSession, PopClickItemCallBack itemCallBack) {
-        this.activity = activity;
+
         this.projectList = projectList;
         this.daoSession = daoSession;
         callBack = itemCallBack;
@@ -94,9 +92,11 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
     @Override
     public View getGroupView(final int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         // 获取对应一级条目的View  和ListView 的getView相似
+
         final ProjectViewHolder holder;
+        final Context context=parent.getContext();
         if (convertView == null) {
-            convertView = LayoutInflater.from(activity).inflate(R.layout.item_project_header, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_project_header, parent, false);
             holder = new ProjectViewHolder();
             holder.txtProjectName = (TextView) convertView.findViewById(R.id.txt_project_name);
             holder.imgMoreOperation = (ImageView) convertView.findViewById(R.id.img_more_operation);
@@ -108,12 +108,15 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
         holder.imgMoreOperation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PopupMenu popMenu = new PopupMenu(activity, holder.imgMoreOperation);
+
+
+                PopupMenu popMenu = new PopupMenu(context, holder.imgMoreOperation);
                 popMenu.getMenuInflater().inflate(R.menu.menu_project_operation, popMenu.getMenu());
+                KLog.d("childid"+project.getChildId());
                 popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_CONSTRUCTION, project.getProjectId() * Constants.PROJECT_MAX, project.getProjectId());
+                        callBack.clickItem(menuItem, ShowProjectActivity.CREATE_CONSTRUCTION, project.getChildId(), project.getId());
                         return true;
                     }
                 });
@@ -129,9 +132,11 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
     public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         // 获取对应二级条目的View  和ListView 的getView相似
         final ConsViewHolder holder;
+        final Context context=parent.getContext();
+
         final List<Construction> constructionList = projectList.get(groupPosition).getConstructionList();
         if (convertView == null) {
-            convertView = LayoutInflater.from(activity).inflate(R.layout.item_project_menu_detail, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_project_menu_detail, parent, false);
             holder = new ConsViewHolder();
             holder.txtConsName = (TextView) convertView.findViewById(R.id.txt_cons_name);
             holder.lvFile = (ListView) convertView.findViewById(R.id.lv_file_name);
@@ -143,7 +148,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
         if (constructionList.size() != 0) {
             final Construction construction = constructionList.get(childPosition);
             holder.txtConsName.setText(constructionList.get(childPosition).getName());
-            final Long parentID = construction.getParentID() * Constants.CONSTRUCTION_MAX * construction.getConstructionId();
+            final Long parentID = construction.getProjectId() * Constants.CONSTRUCTION_MAX * construction.getId();
 
             List<FileContent> fileContentList = queryFile(parentID);
             String[] arrayFile = new String[fileContentList.size()];
@@ -151,18 +156,18 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
                 arrayFile[i] = fileContentList.get(i).getFileName();
             }
 
-            adapter = new FileListAdapter(fileContentList, activity);
+            adapter = new FileListAdapter(fileContentList);
             holder.lvFile.setAdapter(adapter);
             setListViewHeightBasedOnChildren(holder.lvFile);
             holder.imgMoreOperation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    PopupMenu popMenu = new PopupMenu(activity, holder.imgMoreOperation);
+                    PopupMenu popMenu = new PopupMenu(context, holder.imgMoreOperation);
                     popMenu.getMenuInflater().inflate(R.menu.menu_project_operation, popMenu.getMenu());
                     popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem menuItem) {
-                            callBack.clickItem(menuItem, ShowProjectActivity.CREATE_FILE, parentID, construction.getConstructionId());
+                            callBack.clickItem(menuItem, ShowProjectActivity.CREATE_FILE, parentID, construction.getId());
                             return true;
                         }
                     });
@@ -183,7 +188,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
             holder.lvFile.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                    activity.startActivity(new Intent(activity, MapActivity.class));
+                    context.startActivity(new Intent(context, MapActivity.class));
                 }
             });
         }

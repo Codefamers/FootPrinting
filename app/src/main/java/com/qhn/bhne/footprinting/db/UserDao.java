@@ -27,8 +27,9 @@ public class UserDao extends AbstractDao<User, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Name = new Property(1, String.class, "name", false, "NAME");
         public final static Property Password = new Property(2, String.class, "password", false, "PASSWORD");
-        public final static Property HeadImage = new Property(3, String.class, "headImage", false, "HEAD_IMAGE");
-        public final static Property CreateTime = new Property(4, String.class, "createTime", false, "CREATE_TIME");
+        public final static Property ProjectSize = new Property(3, Long.class, "projectSize", false, "PROJECT_SIZE");
+        public final static Property HeadImage = new Property(4, String.class, "headImage", false, "HEAD_IMAGE");
+        public final static Property CreateTime = new Property(5, String.class, "createTime", false, "CREATE_TIME");
     }
 
 
@@ -47,8 +48,9 @@ public class UserDao extends AbstractDao<User, Long> {
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"NAME\" TEXT NOT NULL UNIQUE ," + // 1: name
                 "\"PASSWORD\" TEXT NOT NULL ," + // 2: password
-                "\"HEAD_IMAGE\" TEXT," + // 3: headImage
-                "\"CREATE_TIME\" TEXT);"); // 4: createTime
+                "\"PROJECT_SIZE\" INTEGER NOT NULL ," + // 3: projectSize
+                "\"HEAD_IMAGE\" TEXT," + // 4: headImage
+                "\"CREATE_TIME\" TEXT);"); // 5: createTime
     }
 
     /** Drops the underlying database table. */
@@ -67,15 +69,16 @@ public class UserDao extends AbstractDao<User, Long> {
         }
         stmt.bindString(2, entity.getName());
         stmt.bindString(3, entity.getPassword());
+        stmt.bindLong(4, entity.getProjectSize());
  
         String headImage = entity.getHeadImage();
         if (headImage != null) {
-            stmt.bindString(4, headImage);
+            stmt.bindString(5, headImage);
         }
  
         String createTime = entity.getCreateTime();
         if (createTime != null) {
-            stmt.bindString(5, createTime);
+            stmt.bindString(6, createTime);
         }
     }
 
@@ -89,15 +92,16 @@ public class UserDao extends AbstractDao<User, Long> {
         }
         stmt.bindString(2, entity.getName());
         stmt.bindString(3, entity.getPassword());
+        stmt.bindLong(4, entity.getProjectSize());
  
         String headImage = entity.getHeadImage();
         if (headImage != null) {
-            stmt.bindString(4, headImage);
+            stmt.bindString(5, headImage);
         }
  
         String createTime = entity.getCreateTime();
         if (createTime != null) {
-            stmt.bindString(5, createTime);
+            stmt.bindString(6, createTime);
         }
     }
 
@@ -112,8 +116,9 @@ public class UserDao extends AbstractDao<User, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getString(offset + 1), // name
             cursor.getString(offset + 2), // password
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // headImage
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // createTime
+            cursor.getLong(offset + 3), // projectSize
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // headImage
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // createTime
         );
         return entity;
     }
@@ -123,8 +128,9 @@ public class UserDao extends AbstractDao<User, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setName(cursor.getString(offset + 1));
         entity.setPassword(cursor.getString(offset + 2));
-        entity.setHeadImage(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setCreateTime(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setProjectSize(cursor.getLong(offset + 3));
+        entity.setHeadImage(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setCreateTime(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
      }
     
     @Override

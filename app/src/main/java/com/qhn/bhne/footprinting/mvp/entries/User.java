@@ -24,6 +24,16 @@ public class User {
     @NotNull
     private String password;//密码
 
+    @NotNull
+    private Long projectSize;
+
+    public Long getProjectSize() {
+        return projectSize;
+    }
+
+    public void setProjectSize(Long projectSize) {
+        this.projectSize = projectSize;
+    }
 
     private String headImage;//头像
 
@@ -36,12 +46,13 @@ public class User {
     public User(Long id) {
         this.id = id;
     }
-    @Generated(hash = 37316966)
+    @Generated(hash = 1621417669)
     public User(Long id, @NotNull String name, @NotNull String password,
-            String headImage, String createTime) {
+            @NotNull Long projectSize, String headImage, String createTime) {
         this.id = id;
         this.name = name;
         this.password = password;
+        this.projectSize = projectSize;
         this.headImage = headImage;
         this.createTime = createTime;
     }

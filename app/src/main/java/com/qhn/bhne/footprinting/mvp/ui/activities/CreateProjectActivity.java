@@ -15,13 +15,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
+import com.qhn.bhne.footprinting.interfaces.Constants;
+import com.qhn.bhne.footprinting.mvp.App;
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
 import com.qhn.bhne.footprinting.mvp.entries.Project;
+import com.qhn.bhne.footprinting.mvp.entries.User;
+import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.utils.DateFormat;
-import com.qhn.bhne.footprinting.utils.StatusBarCompat;
 import com.socks.library.KLog;
 
 import org.greenrobot.greendao.query.Query;
@@ -89,6 +91,7 @@ public class CreateProjectActivity extends BaseActivity {
     private Construction construction;
     private Project project;
 
+
     @Override
     protected void initViews() {
         initData();
@@ -103,6 +106,7 @@ public class CreateProjectActivity extends BaseActivity {
                         category = getResources().getStringArray(R.array.project_category)[position];
                     }
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                     //未选中时候的操作
@@ -162,7 +166,7 @@ public class CreateProjectActivity extends BaseActivity {
             });
         }
 
-        initToolBar();
+        //initToolBar();
         initFab();
     }
 
@@ -174,7 +178,7 @@ public class CreateProjectActivity extends BaseActivity {
         createCategory = intent.getIntExtra("EVENT_CATEGORY", 0);
         parentID = intent.getLongExtra("PROJECT_ID", -1);
         itemID = intent.getLongExtra("ITEM_ID", -1);
-        if (itemID!=-1) //查看信息
+        if (itemID != -1) //查看信息
             lookInfo();
         else //创建信息
             editInfo();
@@ -189,7 +193,7 @@ public class CreateProjectActivity extends BaseActivity {
 
     private void lookInfo() {
 
-        if (createCategory==ShowProjectActivity.CREATE_PROJECT) {//查看项目信息
+        if (createCategory == ShowProjectActivity.CREATE_PROJECT) {//查看项目信息
             project = queryProjectUnique(itemID);
             name = project.getName();
             initProjectData();
@@ -242,7 +246,7 @@ public class CreateProjectActivity extends BaseActivity {
     private Construction queryConstUnique(long itemID) {
         Query<Construction> constructionQuery = constDao
                 .queryBuilder()
-                .where(ConstructionDao.Properties.ConstructionId.eq(itemID))
+                .where(ConstructionDao.Properties.Id.eq(itemID))
                 .build();
         return constructionQuery.unique();
 
@@ -251,7 +255,7 @@ public class CreateProjectActivity extends BaseActivity {
     private Project queryProjectUnique(Long id) {
         Query<Project> projectQuery = projectDao
                 .queryBuilder()
-                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.ProjectId.eq(id))
+                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.Id.eq(id))
                 .build();
 
         return projectQuery.unique();
@@ -261,12 +265,12 @@ public class CreateProjectActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (itemID==-1) {//创建信息
+                if (itemID == -1) {//创建信息
                     if (createCategory == ShowProjectActivity.CREATE_PROJECT)
                         createProject(view);
                     else
                         createCons(view);
-                }else {
+                } else {
                     if (createCategory == ShowProjectActivity.CREATE_PROJECT)
                         updateProject();
                     else
@@ -308,10 +312,23 @@ public class CreateProjectActivity extends BaseActivity {
 
     private Long insertProject() {
         getViewProjectData();
-        Project project = new Project(null, name, currentUser.getName(), category, definition, batch, remark, date, describe);
-        return projectDao.insert(project);
+
+
+        Project project = new Project(null, name, currentUser.getName(), null);
+        project.setCategory(category);
+        project.setBatch(batch);
+        project.setDate(date);
+        project.setDefinition(definition);
+        project.setDescribe(describe);
+        project.setRemark(remark);
+        project.setProjectMax(Constants.PROJECT_MAX);
+        Long id=projectDao.insert(project);
+        project.setChildId(id*project.getProjectMax());
+        projectDao.update(project);
+        return id;
     }
-    private void updateProject(){
+
+    private void updateProject() {
         getViewProjectData();
         project.setDefinition(definition);
         project.setBatch(batch);
@@ -320,6 +337,7 @@ public class CreateProjectActivity extends BaseActivity {
         project.setDescribe(describe);
         projectDao.update(project);
     }
+
     private void updateCons() {
 
         construction.setCategory(category);
@@ -327,6 +345,7 @@ public class CreateProjectActivity extends BaseActivity {
         construction.setVoltageClass(strVoltageClass);
         constDao.update(construction);
     }
+
     private void getViewProjectData() {
         String strDefinition = etProjectNum.getText().toString();
         String strBatch = etProjectBatch.getText().toString();
@@ -336,15 +355,20 @@ public class CreateProjectActivity extends BaseActivity {
         describe = etProjectDes.getText().toString();
     }
 
-    private void initToolBar() {
+   /* private void initToolBar() {
         setSupportActionBar(toolbar);
         StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));
 
-    }
+    }*/
 
     @Override
     protected int getLayoutId() {
         return R.layout.activity_create_project;
+    }
+
+    @Override
+    protected void initInjector() {
+
     }
 
 

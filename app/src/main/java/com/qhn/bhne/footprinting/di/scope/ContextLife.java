@@ -9,7 +9,7 @@ import javax.inject.Qualifier;
 /**
  * Created by qhn
  * on 2016/10/27 0027.
- * 该注释的含义为 所注释的对象必须Application
+ *
  */
 @Qualifier
 @Documented

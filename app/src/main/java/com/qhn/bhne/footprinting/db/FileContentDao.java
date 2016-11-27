@@ -1,5 +1,6 @@
 package com.qhn.bhne.footprinting.db;
 
+import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -8,6 +9,8 @@ import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
+import org.greenrobot.greendao.query.Query;
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import com.qhn.bhne.footprinting.mvp.entries.FileContent;
 
@@ -28,10 +31,12 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         public final static Property ParentID = new Property(1, Long.class, "parentID", false, "PARENT_ID");
         public final static Property FileName = new Property(2, String.class, "fileName", false, "FILE_NAME");
         public final static Property UserName = new Property(3, String.class, "userName", false, "USER_NAME");
+        public final static Property Date = new Property(4, String.class, "date", false, "DATE");
     }
 
     private DaoSession daoSession;
 
+    private Query<FileContent> construction_FileContentListQuery;
 
     public FileContentDao(DaoConfig config) {
         super(config);
@@ -49,7 +54,8 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: fileID
                 "\"PARENT_ID\" INTEGER NOT NULL ," + // 1: parentID
                 "\"FILE_NAME\" TEXT NOT NULL ," + // 2: fileName
-                "\"USER_NAME\" TEXT NOT NULL );"); // 3: userName
+                "\"USER_NAME\" TEXT NOT NULL ," + // 3: userName
+                "\"DATE\" TEXT NOT NULL );"); // 4: date
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_FILE_CONTENT_FILE_NAME ON FILE_CONTENT" +
                 " (\"FILE_NAME\" ASC);");
@@ -72,6 +78,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         stmt.bindLong(2, entity.getParentID());
         stmt.bindString(3, entity.getFileName());
         stmt.bindString(4, entity.getUserName());
+        stmt.bindString(5, entity.getDate());
     }
 
     @Override
@@ -85,6 +92,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         stmt.bindLong(2, entity.getParentID());
         stmt.bindString(3, entity.getFileName());
         stmt.bindString(4, entity.getUserName());
+        stmt.bindString(5, entity.getDate());
     }
 
     @Override
@@ -104,7 +112,8 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // fileID
             cursor.getLong(offset + 1), // parentID
             cursor.getString(offset + 2), // fileName
-            cursor.getString(offset + 3) // userName
+            cursor.getString(offset + 3), // userName
+            cursor.getString(offset + 4) // date
         );
         return entity;
     }
@@ -115,6 +124,7 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         entity.setParentID(cursor.getLong(offset + 1));
         entity.setFileName(cursor.getString(offset + 2));
         entity.setUserName(cursor.getString(offset + 3));
+        entity.setDate(cursor.getString(offset + 4));
      }
     
     @Override
@@ -142,4 +152,19 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         return true;
     }
     
+    /** Internal query to resolve the "fileContentList" to-many relationship of Construction. */
+    public List<FileContent> _queryConstruction_FileContentList(Long parentID) {
+        synchronized (this) {
+            if (construction_FileContentListQuery == null) {
+                QueryBuilder<FileContent> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.ParentID.eq(null));
+                queryBuilder.orderRaw("T.'DATE' ASC");
+                construction_FileContentListQuery = queryBuilder.build();
+            }
+        }
+        Query<FileContent> query = construction_FileContentListQuery.forCurrentThread();
+        query.setParameter(0, parentID);
+        return query.list();
+    }
+
 }

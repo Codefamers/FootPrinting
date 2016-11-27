@@ -25,29 +25,25 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
-import com.qhn.bhne.footprinting.mvp.ui.adapter.ExpandProjectListView;
-import com.qhn.bhne.footprinting.db.ConstructionDao;
-import com.qhn.bhne.footprinting.db.FileContentDao;
-import com.qhn.bhne.footprinting.db.ProjectDao;
+import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
 import com.qhn.bhne.footprinting.mvp.entries.FileContent;
 import com.qhn.bhne.footprinting.mvp.entries.Project;
-import com.qhn.bhne.footprinting.interfaces.Constants;
-import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
-import com.qhn.bhne.footprinting.utils.StatusBarCompat;
-import com.socks.library.KLog;
+import com.qhn.bhne.footprinting.mvp.presenter.impl.ShowProjectPI;
+import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
+import com.qhn.bhne.footprinting.mvp.ui.adapter.ExpandProjectListView;
+import com.qhn.bhne.footprinting.mvp.view.ShowProjectView;
+import com.qhn.bhne.footprinting.utils.DateFormat;
 
-import org.greenrobot.greendao.query.Query;
-
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 
 public class ShowProjectActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PopClickItemCallBack {
-
+        implements ShowProjectView, NavigationView.OnNavigationItemSelectedListener, PopClickItemCallBack {
     public static final int CREATE_PROJECT = 1;
     public static final int CREATE_CONSTRUCTION = 2;
     public static final int CREATE_FILE = 3;
@@ -72,58 +68,50 @@ public class ShowProjectActivity extends BaseActivity
     private ExpandProjectListView expandableListAdapter;
     private List<Project> projectList;
     private long parentID;
-    private ProjectDao projectDao;
-    private ConstructionDao constDao;
-    private FileContentDao fileContentDao;
+
+
+    @Inject
+    ShowProjectPI showProjectPresenter;
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_show_project;
+    }
+
+    @Override
+    protected void initInjector() {
+
+        getActivityComponent().inject(this);
+
+    }
 
     @Override
     protected void initViews() {
-        projectDao = daoSession.getProjectDao();
-        constDao = daoSession.getConstructionDao();
-        fileContentDao = daoSession.getFileContentDao();
-        initToolBar();
+        showProjectPresenter.attachView(this);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog(CREATE_PROJECT, 0);
+            }
+        });
         initDrawerLayout();
         initExpandableListView();
 
     }
 
-    //初始化工具栏
-    private void initToolBar() {
-        setSupportActionBar(toolbar);
-        StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(CREATE_PROJECT);
-            }
-        });
+    @Override
+    public void showProgress() {
     }
 
-    private void initExpandableListView() {
-        projectList = queryProjectList();
-        expandableListAdapter = new ExpandProjectListView(projectList, daoSession, this);
-        exlProject.setAdapter(expandableListAdapter);
+    @Override
+    public void hideProgress() {
+
     }
 
-    //查询项目列表
-    private List<Project> queryProjectList() {
-        Query<Project> projectQuery = projectDao
-                .queryBuilder()
-                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()))
-                .build();
-        Iterator<Project> iterator = projectQuery.listIterator();
+    @Override
+    public void showErrorMessage(String errorMessage) {
 
-        while (iterator.hasNext()) {
-            Project project = iterator.next();
-            List<Construction> constList = queryConstList(project);
-            project.setConstructionList(constList);
-        }
-
-        return projectQuery.list();
     }
-
-
-
 
     private void initDrawerLayout() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -134,12 +122,20 @@ public class ShowProjectActivity extends BaseActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    public void createDialog(int createCategory) {
-        initCustomDialog();
-        initAlertDialog(createCategory);
+    private void initExpandableListView() {
+
+        projectList = showProjectPresenter.queryProjectList();
+        expandableListAdapter = new ExpandProjectListView(projectList, daoSession, this);
+        exlProject.setAdapter(expandableListAdapter);
     }
 
-    private void initAlertDialog(final int createCategory) {
+
+    public void createDialog(int createCategory, long parentId) {
+        initCustomDialog();
+        initAlertDialog(createCategory, parentId);
+    }
+
+    private void initAlertDialog(final int createCategory, final long parentId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final AlertDialog dialog = builder.create();
         dialog.setTitle("新建项目/工程");
@@ -147,18 +143,24 @@ public class ShowProjectActivity extends BaseActivity
             @Override
             public void onClick(View view) {
                 String strProjectName = editText.getText().toString();
-                Boolean showWhichIcon = verifyIsRepeat(strProjectName, createCategory);
-                if (showWhichIcon || TextUtils.isEmpty(strProjectName)) {
-                    Toast.makeText(ShowProjectActivity.this, "工程名已存在或者空值", Toast.LENGTH_SHORT).show();
-                    showHintIcon(true);
+                Boolean showWhichIcon = false;
+                if (TextUtils.isEmpty(strProjectName)) {
+                    Toast.makeText(ShowProjectActivity.this, "请输入工程名", Toast.LENGTH_SHORT).show();
+                    showHintIcon(showWhichIcon);
                     return;
                 }
-                showHintIcon(showWhichIcon);
+                showWhichIcon = showProjectPresenter.verifyRepeatName(createCategory, strProjectName, parentId);
+                if (showWhichIcon){
+                    showHintIcon(showWhichIcon);
+                    Toast.makeText(ShowProjectActivity.this, "该名称已被注册", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
 
                 switch (createCategory) {
                     case CREATE_PROJECT:
                     case CREATE_CONSTRUCTION:
-                        dialog.dismiss();
+
                         Intent intent = new Intent(ShowProjectActivity.this, CreateProjectActivity.class);
                         intent.putExtra("PROJECT_NAME", strProjectName);
                         intent.putExtra("EVENT_CATEGORY", createCategory);
@@ -166,17 +168,24 @@ public class ShowProjectActivity extends BaseActivity
                         startActivityForResult(intent, 100);
                         break;
                     case CREATE_FILE:
-                        FileContent fileContent = new FileContent(null, parentID, strProjectName, currentUser.getName());
-                        if (!insertFileContent(fileContent)) {//创建失败
-                            showHintIcon(false);
-                        } else {//创建成功
-                            refreshExpandProjectList();
-                            dialog.dismiss();
+                        FileContent fileContent = new FileContent(null, parentID, strProjectName, currentUser.getName(), DateFormat.dateFormat(new Date()));
+                        if (!showProjectPresenter.addFile(fileContent)) {
+                            return;
                         }
-
+                        showProjectPresenter.refreshData();
                         break;
                 }
+                dialog.dismiss();
+               /*  = verifyIsRepeat(strProjectName, createCategory);
+                if (showWhichIcon || TextUtils.isEmpty(strProjectName)) {
+                    Toast.makeText(ShowProjectActivity.this, "工程名已存在或者空值", Toast.LENGTH_SHORT).show();
 
+                    return;
+                }
+                showHintIcon(showWhichIcon);
+
+
+*/
 
             }
 
@@ -193,17 +202,6 @@ public class ShowProjectActivity extends BaseActivity
         dialog.show();
     }
 
-    private boolean insertFileContent(FileContent fileContent) {
-        try {
-
-            fileContentDao.save(fileContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "创建失败该名称已被注册", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
 
     private void showHintIcon(Boolean showWhichIcon) {
         if (showWhichIcon) {
@@ -233,35 +231,6 @@ public class ShowProjectActivity extends BaseActivity
         btnCancel = (Button) dialogView.findViewById(R.id.btn_cancel);
     }
 
-
-    //验证工程名是否重复
-    private boolean verifyIsRepeat(String projectName, int createCategory) {
-        if (createCategory == CREATE_PROJECT) {
-            Query<Project> projectQuery = projectDao
-                    .queryBuilder()
-                    .where(ProjectDao.Properties.Name.eq(projectName), ProjectDao.Properties.UserName.eq("123456"))
-                    .build();
-            if (projectQuery.unique() != null) {
-                return true;
-            } else
-                return false;
-        } else {
-            Query<Construction> constructionQuery = constDao
-                    .queryBuilder()
-                    .where(ConstructionDao.Properties.Name.eq(projectName), ConstructionDao.Properties.UserName.eq("123456"))
-                    .build();
-            if (constructionQuery.unique() != null) {
-                return true;
-            } else
-                return false;
-        }
-
-    }
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.activity_show_project;
-    }
 
     @Override
     public void onBackPressed() {
@@ -323,6 +292,12 @@ public class ShowProjectActivity extends BaseActivity
         return false;
     }
 
+    @Override
+    public void refreshView(List<Project> list) {
+        projectList.clear();
+        projectList.addAll(list);
+        expandableListAdapter.notifyDataSetChanged();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -330,93 +305,76 @@ public class ShowProjectActivity extends BaseActivity
         if (requestCode == 100) {
             switch (resultCode) {
                 case RESULT_OK:
-                    projectList.add(queryProjectUnique(data.getStringExtra("PROJECT_NAME")));
-                    expandableListAdapter.notifyDataSetChanged();
+                    showProjectPresenter.refreshData();
                     break;
                 case CreateProjectActivity.RESULT_CREATE_CONST:
-                    refreshExpandProjectList();
+                    daoSession.clear();
+                    showProjectPresenter.refreshData();
 
                     break;
             }
         }
     }
 
-    private void refreshExpandProjectList() {
-        projectList.clear();
-        projectList.addAll(queryProjectList());
-        expandableListAdapter.notifyDataSetChanged();
-    }
-
 
     @Override
-    public void clickItem(MenuItem menuItem, int createProject, long parentID,long itemID) {
-        this.parentID = parentID;
+    public void clickItem(MenuItem menuItem, int createProject, long childID, long itemID) {
+        parentID = childID;
         switch (menuItem.getItemId()) {
             case R.id.add_construction:
-                createDialog(createProject);
+                createDialog(createProject, childID);
 
                 break;
             case R.id.look_info:
                 Intent intent = new Intent(ShowProjectActivity.this, CreateProjectActivity.class);
-                intent.putExtra("PROJECT_ID", parentID);
-                intent.putExtra("ITEM_ID",itemID);
-                intent.putExtra("EVENT_CATEGORY", createProject-1);
+                intent.putExtra("PROJECT_ID", childID);
+                intent.putExtra("ITEM_ID", itemID);
+                intent.putExtra("EVENT_CATEGORY", createProject - 1);
                 startActivityForResult(intent, 100);
                 break;
             case R.id.delete_project:
                 Toast.makeText(this, "删除项目", Toast.LENGTH_SHORT).show();
-                deleteItem(createProject,itemID);
+                showProjectPresenter.deleteItem(createProject, itemID);
+
+                showProjectPresenter.refreshData();
                 break;
         }
     }
 
-    private void deleteItem(int createProject,long itemID) {
-        daoSession.clear();
-        switch (createProject) {
-            case CREATE_CONSTRUCTION:
+    private void deleteItem(int itemCategory, long itemID) {
 
-                projectDao.delete(queryProjectUnique(itemID));
-                refreshExpandProjectList();
-                break;
-            case CREATE_FILE:
-
-                constDao.delete(queryConstUnique(itemID));
-                refreshExpandProjectList();
-                break;
-        }
     }
 
     private Construction queryConstUnique(long itemID) {
-        Query<Construction> constructionQuery = constDao
+        /*Query<ConstructionInteractor> constructionQuery = constDao
                 .queryBuilder()
-                .where(ConstructionDao.Properties.ConstructionId.eq(itemID))
+                .where(ConstructionDao.Properties.Id.eq(itemID))
                 .build();
-        return constructionQuery.unique();
+        return constructionQuery.unique();*/
+        return null;
 
     }
-    private List<Construction> queryConstList(Project project) {
-        Long projectId = project.getProjectId();
-        Query<Construction> constructionQuery = constDao
-                .queryBuilder()
-                .where(ConstructionDao.Properties.ParentID.eq(projectId * Constants.PROJECT_MAX))
-                .build();
-        return constructionQuery.list();
-    }
+
 
     private Project queryProjectUnique(String projectName) {
-        Query<Project> projectQuery = projectDao
+       /* Query<Project> projectQuery = projectDao
                 .queryBuilder()
                 .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.Name.eq(projectName))
                 .build();
 
-        return projectQuery.unique();
+        return projectQuery.unique();*/
+        return null;
     }
+
     private Project queryProjectUnique(Long id) {
-        Query<Project> projectQuery = projectDao
+       /* Query<Project> projectQuery = projectDao
                 .queryBuilder()
-                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.ProjectId.eq(id))
+                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.Id.eq(id))
                 .build();
 
-        return projectQuery.unique();
+        return projectQuery.unique();*/
+        return null;
     }
+
+
 }

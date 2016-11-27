@@ -19,11 +19,11 @@ import java.util.List;
 
 public class FileListAdapter extends BaseAdapter {
     private List<FileContent> list;
-    private Activity activity;
 
-    public FileListAdapter(List<FileContent> list, Activity activity) {
+
+    public FileListAdapter(List<FileContent> list) {
         this.list = list;
-        this.activity = activity;
+
     }
 
     @Override
@@ -43,7 +43,7 @@ public class FileListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        view = LayoutInflater.from(activity).inflate(R.layout.item_file_header, null);
+        view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_file_header, null);
         TextView textView = (TextView) view.findViewById(R.id.txt_file_name);
         textView.setText(list.get(i).getFileName());
         return view;

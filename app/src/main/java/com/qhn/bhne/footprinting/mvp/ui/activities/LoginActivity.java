@@ -23,10 +23,10 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.qhn.bhne.footprinting.db.UserDao;
 import com.qhn.bhne.footprinting.mvp.App;
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
-import com.qhn.bhne.footprinting.db.UserDao;
 import com.qhn.bhne.footprinting.mvp.entries.User;
 import com.qhn.bhne.footprinting.utils.DateFormat;
 import com.socks.library.KLog;
@@ -119,6 +119,11 @@ public class LoginActivity extends BaseActivity {
         return R.layout.activity_login;
     }
 
+    @Override
+    protected void initInjector() {
+
+    }
+
     @OnClick({R.id.email_sign_in_button, R.id.btn_create_account})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -156,7 +161,8 @@ public class LoginActivity extends BaseActivity {
 
     private void attemptRegister() {
         verifyInfo();
-        User user = new User(null, userName, password, "23131231", DateFormat.dateFormat(new Date()));
+        User user = new User(null, userName, password, 1l,"23131231", DateFormat.dateFormat(new Date()));
+
         try {
             userDao.insert(user);
         } catch (Exception e) {

@@ -110,13 +110,18 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
 
     @Override
     protected void initViews() {
-        setSupportActionBar(toolbar);
-        StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));
+       /* setSupportActionBar(toolbar);
+        StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));*/
     }
 
     @Override
     protected int getLayoutId() {
         return R.layout.activity_map;
+    }
+
+    @Override
+    protected void initInjector() {
+
     }
 
 

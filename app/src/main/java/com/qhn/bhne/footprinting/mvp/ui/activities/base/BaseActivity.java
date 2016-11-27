@@ -11,12 +11,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.qhn.bhne.footprinting.di.component.ActivityComponent;
-import com.qhn.bhne.footprinting.di.module.ActivityModule;
-import com.qhn.bhne.footprinting.mvp.App;
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.db.DaoSession;
+import com.qhn.bhne.footprinting.di.component.ActivityComponent;
+import com.qhn.bhne.footprinting.di.component.DaggerActivityComponent;
+import com.qhn.bhne.footprinting.di.module.ActivityModule;
+import com.qhn.bhne.footprinting.mvp.App;
 import com.qhn.bhne.footprinting.mvp.entries.User;
+import com.qhn.bhne.footprinting.mvp.presenter.base.BasePresenter;
+import com.qhn.bhne.footprinting.utils.StatusBarCompat;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.socks.library.KLog;
 
@@ -27,64 +30,65 @@ import butterknife.ButterKnife;
  * on 2016/10/27 0027.
  */
 
-public abstract class BaseActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
-    private boolean isToolbar;
+public abstract class BaseActivity<T extends BasePresenter> extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     protected DaoSession daoSession;
     public User currentUser;
     protected ActivityComponent mActivityComponent;
-
-    public ActivityComponent getmActivityComponent() {
-        return mActivityComponent;
-    }
-
-    public void setmActivityComponent(ActivityComponent mActivityComponent) {
-        this.mActivityComponent = mActivityComponent;
-    }
-
-    public boolean isToolbar() {
-        return isToolbar;
-    }
-
-    public void setToolbar(boolean toolbar) {
-        isToolbar = toolbar;
-    }
+    protected T mPresenter;
 
     protected abstract void initViews();
 
     protected abstract int getLayoutId();
-    //protected abstract void initInjector();
+
+    protected abstract void initInjector();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         KLog.i(getClass().getSimpleName());
         isNetworkErrThenShowMsg();//网络错误时显示错误信息
-        currentUser=((App)getApplicationContext()).getUser();
+        currentUser = ((App) getApplicationContext()).getUser();
         int layoutId = getLayoutId();
         setContentView(layoutId);
         ButterKnife.bind(this);
         initActivityComponent();
-        daoSession=((App)getApplication()).getDaoSession();
+        initInjector();
+        daoSession = ((App) getApplication()).getDaoSession();
         initMapView(savedInstanceState);
+        initToolBar();
         initViews();
 
-        
+        if (mPresenter!=null) {
+            mPresenter.create();
+        }
     }
 
     private void initActivityComponent() {
-       //mActivityComponent=Dagg
+        mActivityComponent = DaggerActivityComponent
+                .builder()
+                .activityModule(new ActivityModule(this))
+                .applicationComponent(((App)getApplication()).getApplicationComponent())
+                .build();
+
     }
 
 
-    protected  void initMapView(Bundle savedInstanceState){};
+    protected void initMapView(Bundle savedInstanceState) {
+    }
 
 
-   /* private void initToolBar() {
+
+
+    //初始化工具栏
+    private void initToolBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.ic_launcher);
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));
+        }
+
+
     }
-*/
 
     public static boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) App.getAppContext()
@@ -123,5 +127,12 @@ public abstract class BaseActivity extends AppCompatActivity implements Toolbar.
         }
     }
 
+    public ActivityComponent getActivityComponent() {
+        return mActivityComponent;
+    }
+
+    public void setmActivityComponent(ActivityComponent mActivityComponent) {
+        this.mActivityComponent = mActivityComponent;
+    }
 
 }

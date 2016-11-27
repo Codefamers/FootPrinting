@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.db.DaoMaster;
 import com.qhn.bhne.footprinting.db.DaoSession;
+import com.qhn.bhne.footprinting.di.component.ApplicationComponent;
+import com.qhn.bhne.footprinting.di.component.DaggerApplicationComponent;
 import com.qhn.bhne.footprinting.di.module.ApplicationModule;
 import com.qhn.bhne.footprinting.mvp.entries.User;
 import com.socks.library.KLog;
@@ -26,7 +28,15 @@ public class App extends Application {
 
     private  String userName;
     private String userPassword;
-   // private  mApplicationComponent;
+    private ApplicationComponent applicationComponent;
+
+    public ApplicationComponent getApplicationComponent() {
+        return applicationComponent;
+    }
+
+    public void setApplicationComponent(ApplicationComponent applicationComponent) {
+        this.applicationComponent = applicationComponent;
+    }
 
     public SharedPreferences getSharedPre() {
         return sharedPre;
@@ -82,7 +92,10 @@ public class App extends Application {
     }
 
     private void initApplicationComponent() {
-
+         applicationComponent= DaggerApplicationComponent
+                .builder()
+                .applicationModule(new ApplicationModule(this))
+                .build();
     }
 
 
@@ -93,7 +106,6 @@ public class App extends Application {
         userName=sharedPre.getString("USER_NAME",null);
         userPassword=sharedPre.getString("USER_PASSWORD",null);
     }
-
     private void initDB() {
         DaoMaster.DevOpenHelper helper=new DaoMaster.DevOpenHelper(this,
                 ENCRYPTED?"notes-db-encrypted":"notes-db");
