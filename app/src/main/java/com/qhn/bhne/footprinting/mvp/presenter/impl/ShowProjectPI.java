@@ -1,5 +1,9 @@
 package com.qhn.bhne.footprinting.mvp.presenter.impl;
 
+import android.content.Intent;
+import android.text.TextUtils;
+import android.widget.Toast;
+
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
 import com.qhn.bhne.footprinting.mvp.entries.FileContent;
 import com.qhn.bhne.footprinting.mvp.entries.Project;
@@ -10,6 +14,7 @@ import com.qhn.bhne.footprinting.mvp.presenter.ShowProjectPresenter;
 import com.qhn.bhne.footprinting.mvp.presenter.base.BasePresenterImpl;
 import com.qhn.bhne.footprinting.mvp.ui.activities.ShowProjectActivity;
 import com.qhn.bhne.footprinting.mvp.view.ShowProjectView;
+import com.qhn.bhne.footprinting.utils.MyUtils;
 import com.socks.library.KLog;
 
 import java.util.List;
@@ -38,7 +43,12 @@ public class ShowProjectPI extends BasePresenterImpl<ShowProjectView, Project> i
 
     @Override
     public void create() {
-
+        for (Construction construction : constructionInte.queryList()) {
+            KLog.d("construction"+construction.getChildId());
+        }
+        for (FileContent fileContent : fileIntel.queryList()) {
+            KLog.d("fileContent"+fileContent.getParentID());
+        }
     }
 
 
@@ -53,15 +63,7 @@ public class ShowProjectPI extends BasePresenterImpl<ShowProjectView, Project> i
         return projectInteractor.queryList();
     }
 
-    private List<Construction> queryConstList(Project project) {
-       /* Long projectId = project.getId();
-        Query<ConstructionInteractor> constructionQuery = constructionDao
-                .queryBuilder()
-                .where(ConstructionDao.Properties.ParentID.eq(projectId * Constants.PROJECT_MAX))
-                .build();
-        return constructionQuery.list();*/
-        return null;
-    }
+
 
     @Override
     public void addProject() {
@@ -75,20 +77,19 @@ public class ShowProjectPI extends BasePresenterImpl<ShowProjectView, Project> i
 
     @Override
     public boolean addFile(FileContent fileContent) {
+
         return fileIntel.add(fileContent);
     }
 
     @Override
-    public void deleteItem(int itemCategory, long itemID) {
+    public void deleteItem(int itemCategory, long parentID,long itemID) {
         switch (itemCategory) {
             case ShowProjectActivity.CREATE_CONSTRUCTION:
                 projectInteractor.delete(itemID);
 
                 break;
             case ShowProjectActivity.CREATE_FILE:
-                constructionInte.delete(itemID);
-                //constDao.delete(queryConstUnique(itemID));
-                //refreshExpandProjectList();
+                constructionInte.delete(parentID,itemID);
 
                 break;
         }
@@ -96,57 +97,69 @@ public class ShowProjectPI extends BasePresenterImpl<ShowProjectView, Project> i
 
     @Override
     public void refreshData() {
+
         mView.refreshView(queryProjectList());
     }
-    /*private boolean insertFileContent(FileContent fileContent) {
-       *//* try {
 
-            fileContentDao.save(fileContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "创建失败该名称已被注册", Toast.LENGTH_SHORT).show();
-            return false;
-        }*//*
-        return true;
-    }
-    //验证工程名是否重复
-    private boolean verifyIsRepeat(String projectName, int createCategory) {
-       *//* if (createCategory == CREATE_PROJECT) {
-            Query<Project> projectQuery = projectDao
-                    .queryBuilder()
-                    .where(ProjectDao.Properties.Name.eq(projectName), ProjectDao.Properties.UserName.eq("123456"))
-                    .build();
-            if (projectQuery.unique() != null) {
-                return true;
-            } else
-                return false;
-        } else {
-            Query<ConstructionInteractor> constructionQuery = constDao
-                    .queryBuilder()
-                    .where(ConstructionDao.Properties.Name.eq(projectName), ConstructionDao.Properties.UserName.eq("123456"))
-                    .build();
-            if (constructionQuery.unique() != null) {
-                return true;
-            } else
-                return false;
-        }*//*
-        return false;
-    }*/
 
     @Override
     public boolean verifyRepeatName(int itemCategory, String itemName, long parentID) {
+        boolean isPass=false;
+        if (TextUtils.isEmpty(itemName)) {
+            mView.showErrorMessage("请输入名称");
+            mView.showRepeatIcon(false);
+            return false;
+        }
         switch (itemCategory) {
             case ShowProjectActivity.CREATE_PROJECT:
 
-                return !(projectInteractor.queryUnique(itemName) == null);
+                if (projectInteractor.queryUnique(itemName) != null) {
+                    mView.showErrorMessage("该项目名已存在");
+                    mView.showRepeatIcon(false);
+                    isPass=false;
+                }else{
+                    mView.showRepeatIcon(true);
+                    isPass=true;
+
+                }
+                break;
             case ShowProjectActivity.CREATE_CONSTRUCTION:
-                return !(constructionInte.queryUnique(itemName, parentID) == null);
+                if ((constructionInte.queryUnique(itemName, parentID) != null)) {
+                    mView.showErrorMessage("该工程名已存在");
+                    mView.showRepeatIcon(false);
+                    isPass=false;
+                }else {
+                    mView.showRepeatIcon(true);
+                    isPass=true;
+                }
+
+                break;
             case ShowProjectActivity.CREATE_FILE:
-                return !(fileIntel.queryUnique(itemName, parentID) == null);
+                if ((fileIntel.queryUnique(itemName, parentID) != null)) {
+                    mView.showErrorMessage("该文件已存在");
+                    mView.showRepeatIcon(false);
+                    isPass=false;
+                }else{
+                    mView.showRepeatIcon(true);
+                    mView.createdFile(itemName);
+                    refreshData();
+                    isPass=false;
+                }
+
+                break;
 
 
         }
-        return false;
+        return isPass;
+    }
+
+    @Override
+    public void createFile(FileContent fileContent) {
+        Long id =fileIntel.insert(fileContent);
+        fileContent.setChildId(id * fileContent.getFileMax());
+        fileIntel.update(fileContent);
+        mView.cancelDialog();
+        refreshData();
     }
 
 

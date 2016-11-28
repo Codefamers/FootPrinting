@@ -11,10 +11,20 @@ import java.util.List;
  */
 
 public interface ConstructionInteractor {
-    boolean delete (long itemId);
-    boolean add();
-    boolean update();
+    void delete(long parentId, long itemId);
+
+    boolean add(Construction construction);
+
+    Long insert(Construction construction);
+
+    void update(Construction construction);
+
     List<Construction> queryList();
-    Construction queryUnique(long id);
-    Construction queryUnique(String name,long parentID);
+
+
+
+
+    Construction queryUnique(Long parentID, long id);
+
+    Construction queryUnique(String name, long parentID);
 }

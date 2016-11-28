@@ -148,14 +148,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
         if (constructionList.size() != 0) {
             final Construction construction = constructionList.get(childPosition);
             holder.txtConsName.setText(constructionList.get(childPosition).getName());
-            final Long parentID = construction.getProjectId() * Constants.CONSTRUCTION_MAX * construction.getId();
-
-            List<FileContent> fileContentList = queryFile(parentID);
-            String[] arrayFile = new String[fileContentList.size()];
-            for (int i = 0; i < fileContentList.size(); i++) {
-                arrayFile[i] = fileContentList.get(i).getFileName();
-            }
-
+            List<FileContent> fileContentList = construction.getFileContentList();
             adapter = new FileListAdapter(fileContentList);
             holder.lvFile.setAdapter(adapter);
             setListViewHeightBasedOnChildren(holder.lvFile);
@@ -167,7 +160,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
                     popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem menuItem) {
-                            callBack.clickItem(menuItem, ShowProjectActivity.CREATE_FILE, parentID, construction.getId());
+                            callBack.clickItem(menuItem, ShowProjectActivity.CREATE_FILE, construction.getChildId(), construction.getId());
                             return true;
                         }
                     });

@@ -54,7 +54,7 @@ public class ProjectDao extends AbstractDao<Project, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"PROJECT\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"NAME\" TEXT NOT NULL ," + // 1: name
+                "\"NAME\" TEXT NOT NULL UNIQUE ," + // 1: name
                 "\"USER_NAME\" TEXT NOT NULL ," + // 2: userName
                 "\"CHILD_ID\" INTEGER UNIQUE ," + // 3: childId
                 "\"CATEGORY\" TEXT," + // 4: category

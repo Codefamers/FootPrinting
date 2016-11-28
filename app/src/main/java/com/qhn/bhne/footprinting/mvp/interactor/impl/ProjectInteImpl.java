@@ -1,5 +1,7 @@
 package com.qhn.bhne.footprinting.mvp.interactor.impl;
 
+import android.database.sqlite.SQLiteConstraintException;
+
 import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.mvp.entries.Project;
 import com.qhn.bhne.footprinting.mvp.interactor.ProjectInteractor;
@@ -25,20 +27,32 @@ public class ProjectInteImpl implements ProjectInteractor {
     }
 
     @Override
-    public boolean delete(long id) {
-
+    public void delete(long id) {
         projectDao.delete(queryUnique(id));
-        return false;
+
     }
 
     @Override
-    public boolean add() {
-        return false;
+    public boolean add(Project project) {
+        try {
+            projectDao.insert(project);
+            return true;
+        } catch (SQLiteConstraintException e) {
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
     @Override
-    public boolean update() {
-        return false;
+    public Long insert(Project project) {
+        return projectDao.insert(project);
+    }
+
+    @Override
+    public void update(Project project) {
+        projectDao.save(project);
+
     }
 
     @Override
@@ -52,13 +66,13 @@ public class ProjectInteImpl implements ProjectInteractor {
 
     @Override
     public Project queryUnique(long id) {
-        Query<Project> query=projectDao.queryBuilder().where(ProjectDao.Properties.Id.eq(id)).build();
+        Query<Project> query = projectDao.queryBuilder().where(ProjectDao.Properties.Id.eq(id)).build();
         return query.unique();
     }
 
     @Override
     public Project queryUnique(String name) {
-        Query<Project> query=projectDao.queryBuilder().where(ProjectDao.Properties.Name.eq(name)).build();
+        Query<Project> query = projectDao.queryBuilder().where(ProjectDao.Properties.Name.eq(name)).build();
         return query.unique();
     }
 

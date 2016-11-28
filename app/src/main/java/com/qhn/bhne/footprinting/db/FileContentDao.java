@@ -29,9 +29,11 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
     public static class Properties {
         public final static Property FileID = new Property(0, Long.class, "fileID", true, "_id");
         public final static Property ParentID = new Property(1, Long.class, "parentID", false, "PARENT_ID");
-        public final static Property FileName = new Property(2, String.class, "fileName", false, "FILE_NAME");
-        public final static Property UserName = new Property(3, String.class, "userName", false, "USER_NAME");
-        public final static Property Date = new Property(4, String.class, "date", false, "DATE");
+        public final static Property ChildId = new Property(2, Long.class, "childId", false, "CHILD_ID");
+        public final static Property FileName = new Property(3, String.class, "fileName", false, "FILE_NAME");
+        public final static Property UserName = new Property(4, String.class, "userName", false, "USER_NAME");
+        public final static Property Date = new Property(5, String.class, "date", false, "DATE");
+        public final static Property FileMax = new Property(6, int.class, "FileMax", false, "FILE_MAX");
     }
 
     private DaoSession daoSession;
@@ -53,9 +55,11 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"FILE_CONTENT\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: fileID
                 "\"PARENT_ID\" INTEGER NOT NULL ," + // 1: parentID
-                "\"FILE_NAME\" TEXT NOT NULL ," + // 2: fileName
-                "\"USER_NAME\" TEXT NOT NULL ," + // 3: userName
-                "\"DATE\" TEXT NOT NULL );"); // 4: date
+                "\"CHILD_ID\" INTEGER UNIQUE ," + // 2: childId
+                "\"FILE_NAME\" TEXT NOT NULL ," + // 3: fileName
+                "\"USER_NAME\" TEXT NOT NULL ," + // 4: userName
+                "\"DATE\" TEXT NOT NULL ," + // 5: date
+                "\"FILE_MAX\" INTEGER NOT NULL );"); // 6: FileMax
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_FILE_CONTENT_FILE_NAME ON FILE_CONTENT" +
                 " (\"FILE_NAME\" ASC);");
@@ -76,9 +80,15 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
             stmt.bindLong(1, fileID);
         }
         stmt.bindLong(2, entity.getParentID());
-        stmt.bindString(3, entity.getFileName());
-        stmt.bindString(4, entity.getUserName());
-        stmt.bindString(5, entity.getDate());
+ 
+        Long childId = entity.getChildId();
+        if (childId != null) {
+            stmt.bindLong(3, childId);
+        }
+        stmt.bindString(4, entity.getFileName());
+        stmt.bindString(5, entity.getUserName());
+        stmt.bindString(6, entity.getDate());
+        stmt.bindLong(7, entity.getFileMax());
     }
 
     @Override
@@ -90,9 +100,15 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
             stmt.bindLong(1, fileID);
         }
         stmt.bindLong(2, entity.getParentID());
-        stmt.bindString(3, entity.getFileName());
-        stmt.bindString(4, entity.getUserName());
-        stmt.bindString(5, entity.getDate());
+ 
+        Long childId = entity.getChildId();
+        if (childId != null) {
+            stmt.bindLong(3, childId);
+        }
+        stmt.bindString(4, entity.getFileName());
+        stmt.bindString(5, entity.getUserName());
+        stmt.bindString(6, entity.getDate());
+        stmt.bindLong(7, entity.getFileMax());
     }
 
     @Override
@@ -111,9 +127,11 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
         FileContent entity = new FileContent( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // fileID
             cursor.getLong(offset + 1), // parentID
-            cursor.getString(offset + 2), // fileName
-            cursor.getString(offset + 3), // userName
-            cursor.getString(offset + 4) // date
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // childId
+            cursor.getString(offset + 3), // fileName
+            cursor.getString(offset + 4), // userName
+            cursor.getString(offset + 5), // date
+            cursor.getInt(offset + 6) // FileMax
         );
         return entity;
     }
@@ -122,9 +140,11 @@ public class FileContentDao extends AbstractDao<FileContent, Long> {
     public void readEntity(Cursor cursor, FileContent entity, int offset) {
         entity.setFileID(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setParentID(cursor.getLong(offset + 1));
-        entity.setFileName(cursor.getString(offset + 2));
-        entity.setUserName(cursor.getString(offset + 3));
-        entity.setDate(cursor.getString(offset + 4));
+        entity.setChildId(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setFileName(cursor.getString(offset + 3));
+        entity.setUserName(cursor.getString(offset + 4));
+        entity.setDate(cursor.getString(offset + 5));
+        entity.setFileMax(cursor.getInt(offset + 6));
      }
     
     @Override

@@ -8,4 +8,6 @@ package com.qhn.bhne.footprinting.interfaces;
 public interface Constants {
     public static final int PROJECT_MAX = 200;//项目的最大数量
     public static final int CONSTRUCTION_MAX=400;//工程的最大数量是400
+    public static final int FILE_MAX=400;//工程的最大数量是400
+
 }

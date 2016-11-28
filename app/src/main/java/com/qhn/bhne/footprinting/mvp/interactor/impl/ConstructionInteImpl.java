@@ -1,8 +1,9 @@
 package com.qhn.bhne.footprinting.mvp.interactor.impl;
 
+import android.database.sqlite.SQLiteConstraintException;
+
 import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
-import com.qhn.bhne.footprinting.mvp.entries.Project;
 import com.qhn.bhne.footprinting.mvp.interactor.ConstructionInteractor;
 
 import org.greenrobot.greendao.query.Query;
@@ -24,29 +25,48 @@ public class ConstructionInteImpl implements ConstructionInteractor {
     }
 
     @Override
-    public boolean delete(long itemId) {
-        constructionDao.delete(queryUnique(itemId));
-        return true;
+    public void delete(long parentId,long itemId) {
+        constructionDao.delete(queryUnique(parentId,itemId));
+
     }
 
     @Override
-    public boolean add() {
-        return false;
+    public boolean add(Construction construction) {
+        try {
+            constructionDao.insert(construction);
+            return true;
+        } catch (SQLiteConstraintException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
-    public boolean update() {
-        return false;
+    public Long insert(Construction construction) {
+        return constructionDao.insert(construction);
+    }
+
+    @Override
+    public void update(Construction construction) {
+
+        constructionDao.update(construction);
     }
 
     @Override
     public List<Construction> queryList() {
-        return null;
+        Query<Construction> query=constructionDao
+                .queryBuilder()
+                .build();
+        return query.list();
     }
 
     @Override
-    public Construction queryUnique(long id) {
-        return null;
+    public Construction queryUnique(Long childID, long id) {
+        Query<Construction> query=constructionDao
+                .queryBuilder()
+                .where(ConstructionDao.Properties.Id.eq(id))
+                .build();
+        return query.unique();
     }
 
     @Override

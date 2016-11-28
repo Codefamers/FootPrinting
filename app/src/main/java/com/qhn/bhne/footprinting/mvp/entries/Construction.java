@@ -12,9 +12,12 @@ import org.greenrobot.greendao.annotation.Transient;
 
 import java.util.List;
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Unique;
+
 import com.qhn.bhne.footprinting.db.DaoSession;
 import com.qhn.bhne.footprinting.db.FileContentDao;
 import com.qhn.bhne.footprinting.db.ConstructionDao;
+import com.qhn.bhne.footprinting.interfaces.Constants;
 
 /**
  * Created by qhn
@@ -24,8 +27,14 @@ import com.qhn.bhne.footprinting.db.ConstructionDao;
 public class Construction {
     @Id(autoincrement = true)
     private Long id;//工程id
+
     @NotNull
     private Long projectId;//父节点id
+
+    @Unique
+    private Long childId;//子类节点
+
+
 
     @Index(unique = true)
     @NotNull
@@ -40,11 +49,27 @@ public class Construction {
     private String profession;//专业
     @NotNull
     private String voltageClass;//电压等级
-    @ToMany(joinProperties = {@JoinProperty(name = "id", referencedName = "parentID")})
+    @ToMany(joinProperties = {@JoinProperty(name = "childId", referencedName = "parentID")})
     @OrderBy("date ASC")
     private List<FileContent> fileContentList;
 
+    private int constructionMax= Constants.PROJECT_MAX;
 
+    public int getConstructionMax() {
+        return constructionMax;
+    }
+
+    public void setConstructionMax(int constructionMax) {
+        this.constructionMax = constructionMax;
+    }
+
+    public Long getChildId() {
+        return childId;
+    }
+
+    public void setChildId(Long childId) {
+        this.childId = childId;
+    }
     private String remark;//备注
     private String date;
 
@@ -66,7 +91,7 @@ public class Construction {
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 63035208)
+    @Generated(hash = 28055427)
     public List<FileContent> getFileContentList() {
         if (fileContentList == null) {
             final DaoSession daoSession = this.daoSession;
@@ -74,7 +99,7 @@ public class Construction {
                 throw new DaoException("Entity is detached from DAO context");
             }
             FileContentDao targetDao = daoSession.getFileContentDao();
-            List<FileContent> fileContentListNew = targetDao._queryConstruction_FileContentList(id);
+            List<FileContent> fileContentListNew = targetDao._queryConstruction_FileContentList(childId);
             synchronized (this) {
                 if (fileContentList == null) {
                     fileContentList = fileContentListNew;
@@ -84,17 +109,30 @@ public class Construction {
         return fileContentList;
     }
 
-    @Generated(hash = 477724926)
-    public Construction(Long id, @NotNull Long projectId, @NotNull String name, @NotNull String category,
-            @NotNull String userName, @NotNull String profession, @NotNull String voltageClass, String remark,
-            String date) {
+    public Construction(Long id, Long projectId, Long childId, String name, String category, String userName, String profession, String voltageClass, String date) {
         this.id = id;
         this.projectId = projectId;
+        this.childId = childId;
         this.name = name;
         this.category = category;
         this.userName = userName;
         this.profession = profession;
         this.voltageClass = voltageClass;
+        this.date = date;
+    }
+
+    @Generated(hash = 1100589033)
+    public Construction(Long id, @NotNull Long projectId, Long childId, @NotNull String name, @NotNull String category, @NotNull String userName,
+            @NotNull String profession, @NotNull String voltageClass, int constructionMax, String remark, String date) {
+        this.id = id;
+        this.projectId = projectId;
+        this.childId = childId;
+        this.name = name;
+        this.category = category;
+        this.userName = userName;
+        this.profession = profession;
+        this.voltageClass = voltageClass;
+        this.constructionMax = constructionMax;
         this.remark = remark;
         this.date = date;
     }

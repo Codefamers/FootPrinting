@@ -7,6 +7,8 @@ import android.content.Context;
 import com.qhn.bhne.footprinting.di.module.ActivityModule;
 import com.qhn.bhne.footprinting.di.scope.ContextLife;
 import com.qhn.bhne.footprinting.di.scope.PerActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.CreateProjectActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.MapActivity;
 import com.qhn.bhne.footprinting.mvp.ui.activities.ShowProjectActivity;
 
 import dagger.Component;
@@ -28,8 +30,9 @@ public interface ActivityComponent {
     Activity getActivity();
 
     void inject(ShowProjectActivity mainActivity);
-
-  /* void inject(NewsDetailActivity newsDetailActivity);
+    void inject(MapActivity mapActivity);
+    void inject(CreateProjectActivity createProjectActivity);
+  /*
 
     void inject(NewsChannelActivity newsChannelActivity);
 

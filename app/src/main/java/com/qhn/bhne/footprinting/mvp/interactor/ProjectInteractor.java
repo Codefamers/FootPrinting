@@ -12,9 +12,14 @@ import java.util.List;
  */
 
 public interface ProjectInteractor {
-     boolean delete (long itemId);
-     boolean add();
-     boolean update();
+     void delete (long itemId);
+
+
+     boolean add(Project project);
+
+     Long insert(Project project);
+     void update(Project project);
+
      List<Project> queryList();
      Project queryUnique(long id);
      Project queryUnique(String name);

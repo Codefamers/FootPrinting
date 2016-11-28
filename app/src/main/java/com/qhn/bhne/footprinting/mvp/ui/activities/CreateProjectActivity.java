@@ -16,28 +16,26 @@ import android.widget.TextView;
 
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.db.ConstructionDao;
-import com.qhn.bhne.footprinting.db.ProjectDao;
 import com.qhn.bhne.footprinting.interfaces.Constants;
-import com.qhn.bhne.footprinting.mvp.App;
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
 import com.qhn.bhne.footprinting.mvp.entries.Project;
-import com.qhn.bhne.footprinting.mvp.entries.User;
+import com.qhn.bhne.footprinting.mvp.presenter.impl.CreateProjectPI;
 import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
+import com.qhn.bhne.footprinting.mvp.view.CreateProjectView;
 import com.qhn.bhne.footprinting.utils.DateFormat;
 import com.socks.library.KLog;
 
-import org.greenrobot.greendao.query.Query;
-
 import java.util.Arrays;
 import java.util.Date;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 
 import static android.view.View.GONE;
 
-public class CreateProjectActivity extends BaseActivity {
-    public static final int RESULT_CREATE_CONST = 201;
-    public static final int RESULT_UPDATE_CONST = 202;
+public class CreateProjectActivity extends BaseActivity implements CreateProjectView {
+
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.txt_project_name)
@@ -85,106 +83,106 @@ public class CreateProjectActivity extends BaseActivity {
     private String strVoltageClass;
     private long parentID;
     private long itemID;
-    private ProjectDao projectDao;
-    private ConstructionDao constDao;
 
     private Construction construction;
     private Project project;
-
+    @Inject
+    CreateProjectPI createProjectPI;
 
     @Override
     protected void initViews() {
+        createProjectPI.attachView(this);
         initData();
-
-        if (createCategory == ShowProjectActivity.CREATE_PROJECT) {
-            llConstInfo.setVisibility(GONE);
-            spProjectCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    //选择列表项的操作
-                    if (position > 0) {
-                        category = getResources().getStringArray(R.array.project_category)[position];
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    //未选中时候的操作
-                }
-            });
-
-        } else {
-            llProjectInfo.setVisibility(GONE);
-            //工程类别
-            spConstCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    KLog.d(position);
-                    //选择列表项的操作
-                    if (position > 0) {
-                        category = getResources().getStringArray(R.array.const_category)[position];
+        switch (createCategory) {
+            case ShowProjectActivity.CREATE_PROJECT://初始化 创建项目界面
+                llConstInfo.setVisibility(GONE);
+                spProjectCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        //选择列表项的操作
+                        if (position > 0) {
+                            category = getResources().getStringArray(R.array.project_category)[position];
+                        }
                     }
 
-                }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        //未选中时候的操作
+                    }
+                });
+                break;
+            case ShowProjectActivity.CREATE_CONSTRUCTION://初始化 创建工程界面
+                llProjectInfo.setVisibility(GONE);
+                //工程类别
+                spConstCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        KLog.d(position);
+                        //选择列表项的操作
+                        if (position > 0) {
+                            category = getResources().getStringArray(R.array.const_category)[position];
+                        }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    //未选中时候的操作
-                }
-            });
-            //专业类别
-            spConstProfessionCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    //选择列表项的操作
-                    if (position > 0) {
-                        strProfession = getResources().getStringArray(R.array.profession_category)[position];
                     }
 
-                }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        //未选中时候的操作
+                    }
+                });
+                //专业类别
+                spConstProfessionCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        //选择列表项的操作
+                        if (position > 0) {
+                            strProfession = getResources().getStringArray(R.array.profession_category)[position];
+                        }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    //未选中时候的操作
-                }
-            });
-            //电压等级
-            spPressLevel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    //选择列表项的操作
-                    if (position > 0) {
-                        strVoltageClass = getResources().getStringArray(R.array.press_level)[position];
                     }
 
-                }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        //未选中时候的操作
+                    }
+                });
+                //电压等级
+                spPressLevel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        //选择列表项的操作
+                        if (position > 0) {
+                            strVoltageClass = getResources().getStringArray(R.array.press_level)[position];
+                        }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    //未选中时候的操作
-                }
-            });
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        //未选中时候的操作
+                    }
+                });
+                break;
+            case ShowProjectActivity.CREATE_FILE://初始化 创建文件界面
+                break;
         }
 
-        //initToolBar();
         initFab();
     }
 
     private void initData() {
-        projectDao = daoSession.getProjectDao();
-        constDao = daoSession.getConstructionDao();
         intent = getIntent();
         name = intent.getStringExtra("PROJECT_NAME");
         createCategory = intent.getIntExtra("EVENT_CATEGORY", 0);
         parentID = intent.getLongExtra("PROJECT_ID", -1);
         itemID = intent.getLongExtra("ITEM_ID", -1);
-        if (itemID != -1) //查看信息
+
+        if (itemID != 0L) //查看信息
             lookInfo();
         else //创建信息
             editInfo();
-
-        txtProjectEditTime.setText(date);
         txtProjectName.setText(name);
+        txtProjectEditTime.setText(date);
     }
 
     private void editInfo() {
@@ -192,40 +190,151 @@ public class CreateProjectActivity extends BaseActivity {
     }
 
     private void lookInfo() {
+        switch (createCategory) {
+            case ShowProjectActivity.CREATE_PROJECT:
+                createProjectPI.lookProjectInfo(itemID);
 
-        if (createCategory == ShowProjectActivity.CREATE_PROJECT) {//查看项目信息
-            project = queryProjectUnique(itemID);
-            name = project.getName();
-            initProjectData();
-        } else {
-            construction = queryConstUnique(itemID);
-            name = construction.getName();
-            initConstData();
+                break;
+            case ShowProjectActivity.CREATE_CONSTRUCTION:
+                createProjectPI.lookConstructionInfo(parentID, itemID);
+                //name = construction.getName();
+                //initConstData();
+                break;
+
         }
+
+    }
+    private void initFab() {
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (itemID == 0L) {//创建信息
+                    switch (createCategory) {
+                        case ShowProjectActivity.CREATE_PROJECT:
+                            createProjectPI.createProject(insertProject());
+                            break;
+                        case ShowProjectActivity.CREATE_CONSTRUCTION:
+                            createProjectPI.createConstruction(insertConst());
+                            break;
+
+                    }
+
+                } else {//查看并修改信息
+                    switch (createCategory) {
+                        case ShowProjectActivity.CREATE_PROJECT:
+                            updateProject();
+                            break;
+                        case ShowProjectActivity.CREATE_CONSTRUCTION:
+                            updateCons();
+                    }
+
+
+                }
+
+            }
+
+
+        });
     }
 
 
-    private void initProjectData() {
+    private Construction insertConst() {
+        Construction construction=new Construction(null,parentID,null,name,category,currentUser.getName(),
+                strProfession,strVoltageClass,date);
+        construction.setConstructionMax(Constants.CONSTRUCTION_MAX);
+        return construction;
+
+    }
+
+    private Project insertProject() {
+        getViewProjectData();
+        Project project = new Project(null, name, currentUser.getName(), null);
+        project.setCategory(category);
+        project.setBatch(batch);
+        project.setDate(date);
+        project.setDefinition(definition);
+        project.setDescribe(describe);
+        project.setRemark(remark);
+        project.setProjectMax(Constants.PROJECT_MAX);
+        return project;
+    }
+
+    private void updateProject() {
+        getViewProjectData();
+        project.setDefinition(definition);
+        project.setBatch(batch);
+        project.setRemark(remark);
+        project.setCategory(category);
+        project.setDescribe(describe);
+        createProjectPI.updateProject(project);
+    }
+
+    private void updateCons() {
+        construction.setCategory(category);
+        construction.setProfession(strProfession);
+        construction.setVoltageClass(strVoltageClass);
+        createProjectPI.updateConst(construction);
+    }
+
+    private void getViewProjectData() {
+        String strDefinition = etProjectNum.getText().toString();
+        String strBatch = etProjectBatch.getText().toString();
+        definition = TextUtils.isEmpty(strDefinition) ? 0 : Integer.parseInt(strDefinition);
+        batch = TextUtils.isEmpty(strBatch) ? 0 : Integer.parseInt(strBatch);
+        remark = etProjectRemark.getText().toString();
+        describe = etProjectDes.getText().toString();
+
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_create_project;
+    }
+
+    @Override
+    protected void initInjector() {
+        getActivityComponent().inject(this);
+    }
+
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
+    }
+
+
+    @Override
+    public void getViewString() {
+
+    }
+
+    @Override
+    public void showProjectDetails(Project project) {
+        this.project=project;
         if (project.getBatch() != 0) {
             etProjectBatch.setText(String.valueOf(project.getBatch()));
         }
-        if (TextUtils.isEmpty(project.getCategory())) {
+        if (!TextUtils.isEmpty(project.getCategory())) {
             String[] array = getResources().getStringArray(R.array.project_category);
             spProjectCategory.setSelection(Arrays.asList(array).indexOf(project.getCategory()));
         }
         if (project.getDefinition() != 0) {
             etProjectNum.setText(String.valueOf(project.getDefinition()));
         }
-        if (TextUtils.isEmpty(project.getDescribe())) {
+        if (!TextUtils.isEmpty(project.getDescribe())) {
             etProjectDes.setText(project.getDescribe());
         }
-        if (TextUtils.isEmpty(project.getRemark())) {
+        if (!TextUtils.isEmpty(project.getRemark())) {
             etProjectRemark.setText(project.getRemark());
         }
         date = project.getDate();
+        name=project.getName();
+
     }
 
-    private void initConstData() {
+    @Override
+    public void showConstDetails(Construction construction) {
+        this.construction=construction;
         name = construction.getName();
         date = construction.getDate();
 
@@ -241,141 +350,32 @@ public class CreateProjectActivity extends BaseActivity {
         String[] arrayThree = getResources().getStringArray(R.array.press_level);
 
         spPressLevel.setSelection(Arrays.asList(arrayThree).indexOf(construction.getVoltageClass()));
-    }
-
-    private Construction queryConstUnique(long itemID) {
-        Query<Construction> constructionQuery = constDao
-                .queryBuilder()
-                .where(ConstructionDao.Properties.Id.eq(itemID))
-                .build();
-        return constructionQuery.unique();
-
-    }
-
-    private Project queryProjectUnique(Long id) {
-        Query<Project> projectQuery = projectDao
-                .queryBuilder()
-                .where(ProjectDao.Properties.UserName.eq(currentUser.getName()), ProjectDao.Properties.Id.eq(id))
-                .build();
-
-        return projectQuery.unique();
-    }
-
-    private void initFab() {
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (itemID == -1) {//创建信息
-                    if (createCategory == ShowProjectActivity.CREATE_PROJECT)
-                        createProject(view);
-                    else
-                        createCons(view);
-                } else {
-                    if (createCategory == ShowProjectActivity.CREATE_PROJECT)
-                        updateProject();
-                    else
-                        updateCons();
-                    setResult(RESULT_UPDATE_CONST, intent);
-                    finish();
-                }
-
-            }
-
-
-        });
-    }
-
-    private void createCons(View view) {
-        if (insertConst() != 0) {
-            intent.putExtra("PROJECT_NAME", name);
-            setResult(RESULT_CREATE_CONST, intent);
-            finish();
-        } else
-            Snackbar.make(view, "创建失败", Snackbar.LENGTH_SHORT).show();
-    }
-
-    private long insertConst() {
-        Construction construction = new Construction(null, parentID, name, category, currentUser.getName(), strProfession, strVoltageClass, null, date);
-        ConstructionDao constructionDao = daoSession.getConstructionDao();
-        return constructionDao.insert(construction);
-
-    }
-
-    private void createProject(View view) {
-        if (insertProject() != 0) {
-            intent.putExtra("PROJECT_NAME", name);
-            setResult(RESULT_OK, intent);
-            finish();
-        } else
-            Snackbar.make(view, "创建失败", Snackbar.LENGTH_SHORT).show();
-    }
-
-    private Long insertProject() {
-        getViewProjectData();
-
-
-        Project project = new Project(null, name, currentUser.getName(), null);
-        project.setCategory(category);
-        project.setBatch(batch);
-        project.setDate(date);
-        project.setDefinition(definition);
-        project.setDescribe(describe);
-        project.setRemark(remark);
-        project.setProjectMax(Constants.PROJECT_MAX);
-        Long id=projectDao.insert(project);
-        project.setChildId(id*project.getProjectMax());
-        projectDao.update(project);
-        return id;
-    }
-
-    private void updateProject() {
-        getViewProjectData();
-        project.setDefinition(definition);
-        project.setBatch(batch);
-        project.setRemark(remark);
-        project.setCategory(category);
-        project.setDescribe(describe);
-        projectDao.update(project);
-    }
-
-    private void updateCons() {
-
-        construction.setCategory(category);
-        construction.setProfession(strProfession);
-        construction.setVoltageClass(strVoltageClass);
-        constDao.update(construction);
-    }
-
-    private void getViewProjectData() {
-        String strDefinition = etProjectNum.getText().toString();
-        String strBatch = etProjectBatch.getText().toString();
-        definition = TextUtils.isEmpty(strDefinition) ? 0 : Integer.parseInt(strDefinition);
-        batch = TextUtils.isEmpty(strDefinition) ? 0 : Integer.parseInt(strBatch);
-        remark = etProjectRemark.getText().toString();
-        describe = etProjectDes.getText().toString();
-    }
-
-   /* private void initToolBar() {
-        setSupportActionBar(toolbar);
-        StatusBarCompat.compat(this, getResources().getColor(R.color.colorPrimaryDark));
-
-    }*/
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.activity_create_project;
+        txtProjectName.setText(construction.getName());
     }
 
     @Override
-    protected void initInjector() {
+    public void showSpotDetails() {
 
     }
-
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return false;
+    public void returnResult() {
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
+    @Override
+    public void showProgress() {
 
+    }
+
+    @Override
+    public void hideProgress() {
+
+    }
+
+    @Override
+    public void showErrorMessage(String errorMessage) {
+
+    }
 }

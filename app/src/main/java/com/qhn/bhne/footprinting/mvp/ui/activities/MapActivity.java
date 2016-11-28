@@ -1,5 +1,6 @@
 package com.qhn.bhne.footprinting.mvp.ui.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,7 +25,7 @@ import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
-import com.qhn.bhne.footprinting.utils.StatusBarCompat;
+import com.qhn.bhne.footprinting.mvp.view.MapActivityView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +36,7 @@ import butterknife.ButterKnife;
 import static com.amap.api.maps.AMapOptions.ZOOM_POSITION_RIGHT_BUTTOM;
 
 
-public class MapActivity extends BaseActivity implements LocationSource, AMapLocationListener {
+public class MapActivity extends BaseActivity implements LocationSource, AMapLocationListener , MapActivityView {
 
 
     @BindView(R.id.map)
@@ -102,12 +103,31 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
         aMap.setOnInfoWindowClickListener(new AMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                finish();
+                Intent intent=new Intent(MapActivity.this,CreateProjectActivity.class);
+                startActivity(intent);
             }
         });
 
     }
+    @Override
+    public void dragMaker() {
 
+    }
+
+    @Override
+    public void showProgress() {
+
+    }
+
+    @Override
+    public void hideProgress() {
+
+    }
+
+    @Override
+    public void showErrorMessage(String errorMessage) {
+
+    }
     @Override
     protected void initViews() {
        /* setSupportActionBar(toolbar);
@@ -121,7 +141,7 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
 
     @Override
     protected void initInjector() {
-
+        getActivityComponent().inject(this);
     }
 
 
@@ -290,12 +310,9 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
         return false;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
-    }
+
+
+
 }
 /* public static String sHA1(Context context) {
         try {

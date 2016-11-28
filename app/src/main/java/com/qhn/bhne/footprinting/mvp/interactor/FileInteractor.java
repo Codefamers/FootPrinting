@@ -13,8 +13,12 @@ import java.util.List;
 public interface FileInteractor {
     boolean delete (long itemId);
     boolean add(FileContent fileContent);
-    boolean update();
+
+
+    void update(FileContent fileContent);
+
     List<FileContent> queryList();
     FileContent queryUnique(long id);
     FileContent queryUnique(String name,long parentID);
+    Long insert(FileContent fileContent);
 }

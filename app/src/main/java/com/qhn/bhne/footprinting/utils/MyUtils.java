@@ -1,6 +1,8 @@
 package com.qhn.bhne.footprinting.utils;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +10,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.qhn.bhne.footprinting.R;
+import com.qhn.bhne.footprinting.mvp.ui.activities.CreateProjectActivity;
+import com.qhn.bhne.footprinting.mvp.ui.activities.ShowProjectActivity;
 
 /**
  * Created by qhn
@@ -26,5 +30,13 @@ public class MyUtils {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(adapter);
+    }
+    public static Intent buildCreateProjectIntent(Context context,Long childID,Long itemID,int eventType,String projectName){
+        Intent intent = new Intent(context, CreateProjectActivity.class);
+        intent.putExtra("PROJECT_ID", childID);
+        intent.putExtra("ITEM_ID", itemID);
+        intent.putExtra("EVENT_CATEGORY", eventType);
+        intent.putExtra("PROJECT_NAME", projectName);
+        return intent;
     }
 }

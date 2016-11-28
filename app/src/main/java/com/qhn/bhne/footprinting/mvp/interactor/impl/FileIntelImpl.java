@@ -44,13 +44,17 @@ public class FileIntelImpl implements FileInteractor {
     }
 
     @Override
-    public boolean update() {
-        return false;
+    public void update(FileContent fileContent) {
+         fileContentDao.update(fileContent);
     }
 
     @Override
     public List<FileContent> queryList() {
-        return null;
+        Query<FileContent> query = fileContentDao
+                .queryBuilder()
+
+                .build();
+        return query.list();
     }
 
     @Override
@@ -66,6 +70,11 @@ public class FileIntelImpl implements FileInteractor {
                         , FileContentDao.Properties.ParentID.eq(parentID))
                 .build();
         return query.unique();
+    }
+
+    @Override
+    public Long insert(FileContent fileContent) {
+        return fileContentDao.insert(fileContent);
     }
 
 

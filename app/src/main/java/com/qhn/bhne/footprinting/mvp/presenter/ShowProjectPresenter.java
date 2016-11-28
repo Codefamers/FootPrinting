@@ -15,7 +15,9 @@ public interface ShowProjectPresenter {
     void addProject();
     void addConst();
     boolean addFile(FileContent fileContent);
-    void deleteItem(int itemCategory, long itemID);
+    void deleteItem(int itemCategory,long parentId, long itemID);
     void refreshData();
     boolean verifyRepeatName(int itemCategory,String itemName,long itemID);
+
+    void createFile(FileContent fileContent);
 }

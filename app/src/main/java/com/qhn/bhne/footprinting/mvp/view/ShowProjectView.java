@@ -12,4 +12,8 @@ import java.util.List;
 public interface ShowProjectView extends BaseView {
     //void fromOthersBack();
     void refreshView(List<Project> list);
+    void showRepeatIcon(Boolean isShowIcon);
+    void createdFile(String fileName);
+
+    void cancelDialog();
 }

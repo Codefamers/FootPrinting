@@ -26,7 +26,7 @@ import com.qhn.bhne.footprinting.db.ProjectDao;
 public class Project {
     @Id(autoincrement = true)
     private Long id;
-
+    @Unique
     @NotNull
     private String name;//项目名称
 
