@@ -1,8 +1,8 @@
 package com.qhn.bhne.footprinting.mvp.ui.activities;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -10,15 +10,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.amap.api.maps.AMapUtils;
+import com.amap.api.maps.model.LatLng;
 import com.qhn.bhne.footprinting.R;
-import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.mvp.entries.Construction;
 import com.qhn.bhne.footprinting.mvp.entries.Project;
+import com.qhn.bhne.footprinting.mvp.entries.Spot;
 import com.qhn.bhne.footprinting.mvp.presenter.impl.CreateProjectPI;
 import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.mvp.view.CreateProjectView;
@@ -31,15 +36,15 @@ import java.util.Date;
 import javax.inject.Inject;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
-import static android.view.View.GONE;
 
 public class CreateProjectActivity extends BaseActivity implements CreateProjectView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.txt_project_name)
-    TextView txtProjectName;
+    EditText txtProjectName;
     @BindView(R.id.txt_project_edit_time)
     TextView txtProjectEditTime;
     @BindView(R.id.rec_project)
@@ -62,12 +67,33 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
     LinearLayout llConstInfo;
     @BindView(R.id.ll_project_info)
     LinearLayout llProjectInfo;
+    @BindView(R.id.ll_spot_info)
+    LinearLayout llSpotInfo;
     @BindView(R.id.sp_const_profession_category)
     AppCompatSpinner spConstProfessionCategory;
     @BindView(R.id.sp_const_category)
     AppCompatSpinner spConstCategory;
     @BindView(R.id.sp_press_level)
     AppCompatSpinner spPressLevel;
+    @BindView(R.id.et_spot_batch)
+    AutoCompleteTextView etSpotBatch;
+    @BindView(R.id.sp_spot_type)
+    AppCompatSpinner spSpotType;
+    @BindView(R.id.et_last_position)
+    AutoCompleteTextView etLastPosition;
+    @BindView(R.id.btn_choose_spot)
+    Button btnChooseSpot;
+    @BindView(R.id.et_spot_longitude)
+    AutoCompleteTextView etSpotLongitude;
+    @BindView(R.id.et_spot_latitude)
+    AutoCompleteTextView etSpotLatitude;
+    @BindView(R.id.et_spot_distance)
+    AutoCompleteTextView etSpotDistance;
+    @BindView(R.id.et_spot_des)
+    AutoCompleteTextView etSpotDes;
+    @BindView(R.id.et_spot_position)
+    AutoCompleteTextView etLocation;
+
     private int createCategory;//创建的是工程还是项目
     private String name;//项目或者工程的名称
     private String date;//创建日期
@@ -89,13 +115,23 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
     @Inject
     CreateProjectPI createProjectPI;
 
+    private String strLastPosition;//上一个点信息
+    private Double doubleLatitude;//纬度
+    private Double doubleLongitude;//经度
+    private float distance;//间距
+    private String location;//位置
+    private int REQUEST_CODE=201;
+    private String lastLocation;//上一个点的位置
+
     @Override
     protected void initViews() {
         createProjectPI.attachView(this);
+        intent = getIntent();
         initData();
         switch (createCategory) {
             case ShowProjectActivity.CREATE_PROJECT://初始化 创建项目界面
-                llConstInfo.setVisibility(GONE);
+                llProjectInfo.setVisibility(View.VISIBLE);
+                txtProjectName.setFocusable(false);
                 spProjectCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -112,7 +148,8 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
                 });
                 break;
             case ShowProjectActivity.CREATE_CONSTRUCTION://初始化 创建工程界面
-                llProjectInfo.setVisibility(GONE);
+                llConstInfo.setVisibility(View.VISIBLE);
+                txtProjectName.setFocusable(false);
                 //工程类别
                 spConstCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -163,15 +200,73 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
                     }
                 });
                 break;
-            case ShowProjectActivity.CREATE_FILE://初始化 创建文件界面
+            case ShowProjectActivity.CREATE_SPOT://初始化 创建文件界面
+                initSpotData();
+                llSpotInfo.setVisibility(View.VISIBLE);
+                btnChooseSpot.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent=new Intent(CreateProjectActivity.this,SpotDetailActivity.class);
+                        intent.putExtra("CHOOSE_SPOT",true);
+                        intent.putExtra("PARENT_ID",parentID);
+                        startActivityForResult(intent,REQUEST_CODE);
+                    }
+                });
+                spSpotType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        //选择列表项的操作
+                        if (position > 0) {
+                            category = getResources().getStringArray(R.array.spot_type)[position];
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        //未选中时候的操作
+                    }
+                });
                 break;
         }
 
         initFab();
     }
 
+    private void initSpotData() {
+        strLastPosition=intent.getStringExtra("LAST_POSITION");
+        doubleLatitude=intent.getDoubleExtra("LATITUDE",-1);
+        doubleLongitude=intent.getDoubleExtra("LONGITUDE",-1);
+        //distance=intent.getFloatExtra("DISTANCE",-1);
+        batch=intent.getIntExtra("BATCH",-1);
+        location=intent.getStringExtra("LOCATION");
+        initSpotView();
+    }
+
+
+
+    private void initSpotView() {
+        if (!TextUtils.isEmpty(strLastPosition)) {
+            etLastPosition.setText(strLastPosition);//上一个点信息
+        }
+        if (!TextUtils.isEmpty(String.valueOf(doubleLatitude))) {
+            etSpotLatitude.setText(String.valueOf(doubleLatitude));//纬度
+        }
+        if (!TextUtils.isEmpty(String.valueOf(doubleLongitude))) {
+            etSpotLongitude.setText(String.valueOf(doubleLongitude));//经度
+        }
+        if (!TextUtils.isEmpty(String.valueOf(distance))) {
+            etSpotDistance.setText(String.valueOf(distance));
+        }
+        if (!TextUtils.isEmpty(String.valueOf(batch))) {
+           etSpotBatch.setText(String.valueOf(batch));
+        }
+        if (!TextUtils.isEmpty(location)) {
+            etLocation.setText(location);
+        }
+    }
+
     private void initData() {
-        intent = getIntent();
+
         name = intent.getStringExtra("PROJECT_NAME");
         createCategory = intent.getIntExtra("EVENT_CATEGORY", 0);
         parentID = intent.getLongExtra("PROJECT_ID", -1);
@@ -181,7 +276,12 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
             lookInfo();
         else //创建信息
             editInfo();
-        txtProjectName.setText(name);
+        if (!TextUtils.isEmpty(name)) {
+            txtProjectName.setText(name);
+        } else {
+            txtProjectName.setHint("请输入该点的名称");
+        }
+
         txtProjectEditTime.setText(date);
     }
 
@@ -193,17 +293,15 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
         switch (createCategory) {
             case ShowProjectActivity.CREATE_PROJECT:
                 createProjectPI.lookProjectInfo(itemID);
-
                 break;
             case ShowProjectActivity.CREATE_CONSTRUCTION:
                 createProjectPI.lookConstructionInfo(parentID, itemID);
-                //name = construction.getName();
-                //initConstData();
                 break;
 
         }
 
     }
+
     private void initFab() {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,7 +314,12 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
                         case ShowProjectActivity.CREATE_CONSTRUCTION:
                             createProjectPI.createConstruction(insertConst());
                             break;
-
+                        case ShowProjectActivity.CREATE_SPOT:
+                            createProjectPI.createSpot(getSpot());
+                           // setResult(500,intent);
+                           // setResult(500,intent);
+                            //finish();
+                            break;
                     }
 
                 } else {//查看并修改信息
@@ -237,10 +340,37 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
         });
     }
 
+    private Spot getSpot() {
+        getSpotViewInfo();
+        Spot spot=new Spot(null,parentID,batch,category,name);
+        spot.setDate(date);
+        spot.setDistance(distance);
+        spot.setLastPosition(strLastPosition);
+        spot.setLatitude(doubleLatitude);
+        spot.setLongitude(doubleLongitude);
+        spot.setRemark(describe);
+        spot.setLocation(location);
+        return spot;
+    }
+
+    private void getSpotViewInfo() {
+        if (TextUtils.isEmpty(category)) {
+            Toast.makeText(this, "请选择点类型", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(this, "请输入点名称", Toast.LENGTH_SHORT).show();
+        }
+        name=txtProjectName.getText().toString();
+        strLastPosition=etLastPosition.getText().toString();
+        describe=etSpotDes.getText().toString();
+
+    }
+
 
     private Construction insertConst() {
-        Construction construction=new Construction(null,parentID,null,name,category,currentUser.getName(),
-                strProfession,strVoltageClass,date);
+        Construction construction = new Construction(null, parentID, null, name, category, currentUser.getName(),
+                strProfession, strVoltageClass, date);
         construction.setConstructionMax(Constants.CONSTRUCTION_MAX);
         return construction;
 
@@ -310,7 +440,7 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
 
     @Override
     public void showProjectDetails(Project project) {
-        this.project=project;
+        this.project = project;
         if (project.getBatch() != 0) {
             etProjectBatch.setText(String.valueOf(project.getBatch()));
         }
@@ -328,13 +458,13 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
             etProjectRemark.setText(project.getRemark());
         }
         date = project.getDate();
-        name=project.getName();
+        name = project.getName();
 
     }
 
     @Override
     public void showConstDetails(Construction construction) {
-        this.construction=construction;
+        this.construction = construction;
         name = construction.getName();
         date = construction.getDate();
 
@@ -377,5 +507,20 @@ public class CreateProjectActivity extends BaseActivity implements CreateProject
     @Override
     public void showErrorMessage(String errorMessage) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==REQUEST_CODE) {
+            if (resultCode==RESULT_OK) {
+                lastLocation=data.getStringExtra("LOCATION");
+                Double latitude=data.getDoubleExtra("LATITUDE",-1);
+                Double longitude=data.getDoubleExtra("LONGITUDE",-1);
+                LatLng latLng=new LatLng(latitude,longitude);
+                LatLng currentLatLng=new LatLng(doubleLatitude,doubleLongitude);
+                distance=AMapUtils.calculateLineDistance(latLng,currentLatLng);
+            }
+        }
     }
 }

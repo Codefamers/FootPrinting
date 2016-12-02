@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginTop="8dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp">
+
+
+        <TextView
+            android:id="@+id/txt_spot_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y4"
+            android:text="Marker2"
+            android:textColor="@color/alpha_85_black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/txt_spot_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_spot_name"
+            android:layout_marginTop="4dp"
+            android:text="编号2"
+            android:textColor="@color/colorAccent"
+            android:textSize="12sp" />
+
+
+        <TextView
+            android:id="@+id/txt_server_grade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_spot_name"
+            android:layout_alignParentRight="true"
+            android:text="挡距 ：28m"
+            android:textColor="@color/alpha_85_black"
+            android:textSize="14sp" />
+
+
+        <ImageView
+            android:id="@+id/img_cut_line_one"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_spot_num"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/grey_cut_line" />
+
+
+        <TextView
+            android:id="@+id/txt_spot_detail_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/img_cut_line_one"
+            android:layout_marginTop="8dp"
+            android:text="西青区****用电36"
+            android:textColor="@color/alpha_55_black"
+            android:textSize="14sp" />
+
+
+        <TextView
+            android:id="@+id/txt_spot_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_spot_detail_content"
+            android:layout_marginTop="8dp"
+            android:text="点类型 : 变压器"
+            android:textColor="@color/alpha_55_black"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/txt_spot_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_spot_type"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="8dp"
+            android:text="勘探地址: 西青区海泰发展五道A2-1"
+            android:textColor="@color/alpha_55_black"
+            android:textSize="14sp" />
+
+        <CheckBox
+            android:id="@+id/cb_is_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignBaseline="@id/txt_spot_address"
+            android:text="选择"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+
+</android.support.v7.widget.CardView>
+

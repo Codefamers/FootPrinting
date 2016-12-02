@@ -48,8 +48,8 @@
 
         <activity
             android:name=".mvp.ui.activities.LoginActivity"
-            android:label=""
             android:excludeFromRecents="true"
+            android:label=""
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -57,19 +57,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".mvp.ui.activities.MapActivity"
-            android:parentActivityName=".mvp.ui.activities.ShowProjectActivity"/>
-        <activity android:name=".mvp.ui.activities.CreateProjectActivity"
-            android:parentActivityName=".mvp.ui.activities.ShowProjectActivity"/>
+        <activity
+            android:name=".mvp.ui.activities.MapActivity"
+            android:label="基建踩点"
+            android:launchMode="singleTask"
+            android:parentActivityName=".mvp.ui.activities.ShowProjectActivity" />
+        <activity
+            android:name=".mvp.ui.activities.CreateProjectActivity"
+            android:parentActivityName=".mvp.ui.activities.ShowProjectActivity" />
+        <activity android:name=".mvp.ui.activities.CameraActivity" />
+        <activity android:name=".mvp.ui.activities.MarkerActivity" />
         <activity
             android:name=".mvp.ui.activities.ShowProjectActivity"
-            android:label="@string/title_activity_show_project"
-            android:launchMode="singleTask"
-            /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+            android:label="@string/title_activity_show_project" />
+        <!--
+ ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".mvp.ui.activities.SpotDetailActivity"
+            android:parentActivityName=".mvp.ui.activities.MapActivity" />
     </application>
 
 </manifest>

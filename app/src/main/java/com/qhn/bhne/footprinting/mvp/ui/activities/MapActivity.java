@@ -6,7 +6,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
@@ -14,41 +17,49 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
-import com.amap.api.maps.model.MyLocationStyle;
 import com.qhn.bhne.footprinting.R;
+import com.qhn.bhne.footprinting.db.SpotDao;
+import com.qhn.bhne.footprinting.interfaces.Constants;
+import com.qhn.bhne.footprinting.mvp.entries.Spot;
 import com.qhn.bhne.footprinting.mvp.ui.activities.base.BaseActivity;
 import com.qhn.bhne.footprinting.mvp.view.MapActivityView;
+import com.qhn.bhne.footprinting.utils.MyUtils;
+import com.socks.library.KLog;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 import static com.amap.api.maps.AMapOptions.ZOOM_POSITION_RIGHT_BUTTOM;
 
 
-public class MapActivity extends BaseActivity implements LocationSource, AMapLocationListener , MapActivityView {
-
+public class MapActivity extends BaseActivity implements LocationSource, AMapLocationListener, MapActivityView, AMap.OnMarkerClickListener,
+        AMap.OnInfoWindowClickListener, AMap.OnMarkerDragListener, AMap.OnMapLoadedListener,
+        View.OnClickListener, AMap.InfoWindowAdapter {
 
     @BindView(R.id.map)
-    MapView map;
+    MapView mapView;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.activity_map)
-    RelativeLayout activityMap;
+
 
     //地图显示
     private AMap aMap;//地图对象
-    private MapView mapView;//地图控件
 
     //定位需要的声明
     private AMapLocationClient mLocationClient = null;//定位发起端
@@ -62,11 +73,32 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
     private static final String TAG = "MapActivity";
     private LatLng latLng;
 
+    private Long parentId;
+
+    private float distance;//与上一个点之间的间距
+    private static final int REQUEST_CODE = 573;
+    private AMapLocation aMapLocation;
+    private LatLng locationLatLng;
+    private ArrayList<Spot> spotList;
+    private long itemId;
+    private  Marker editdMark;
+
     @Override
     protected void initMapView(Bundle savedInstanceState) {
         super.initMapView(savedInstanceState);
-        mapView = (MapView) findViewById(R.id.map);
+
+        parentId = getIntent().getLongExtra("CHILD_ID", -1);
+        itemId=getIntent().getLongExtra("ITEM_ID",-1);
+
         mapView.onCreate(savedInstanceState);
+        setUpMap();
+        //开始定位
+        initLoc();
+
+    }
+
+    private void setUpMap() {
+
         aMap = mapView.getMap();
         mUiSettings = aMap.getUiSettings();
         //设置点击定位按钮后的回调
@@ -75,42 +107,24 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
         mUiSettings.setMyLocationButtonEnabled(true);
         //是否可触发定位并显示定位层
         aMap.setMyLocationEnabled(true);
-
         //设置层级控制按钮的位置
         mUiSettings.setZoomPosition(ZOOM_POSITION_RIGHT_BUTTOM);
-
         mUiSettings.setScaleControlsEnabled(true);
-
-        //定位的小图标 默认是蓝
-        MyLocationStyle myLocationStyle = new MyLocationStyle();
-        myLocationStyle.myLocationIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-        myLocationStyle.radiusFillColor(android.R.color.transparent);
-        myLocationStyle.strokeColor(android.R.color.transparent);
-        aMap.setMyLocationStyle(myLocationStyle);
-
-
-        //开始定位
-        initLoc();
-
-
-        aMap.setOnMarkerClickListener(new AMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                marker.setSnippet("我被点击了");
-                return false;
-            }
-        });
-        aMap.setOnInfoWindowClickListener(new AMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Intent intent=new Intent(MapActivity.this,CreateProjectActivity.class);
-                startActivity(intent);
-            }
-        });
-
+        aMap.setOnMarkerDragListener(this);// 设置marker可拖拽事件监听器
+        aMap.setOnMapLoadedListener(this);// 设置amap加载成功事件监听器
+        aMap.setOnMarkerClickListener(this);// 设置点击marker事件监听器
+        aMap.setOnInfoWindowClickListener(this);// 设置点击infoWindow事件监听器
+        aMap.setInfoWindowAdapter(this);// 设置自定义InfoWindow样式
+        //addMarkersToMap();// 往地图上添加marker
     }
+
     @Override
     public void dragMaker() {
+
+    }
+
+    @Override
+    public void editSpotComplete() {
 
     }
 
@@ -128,6 +142,7 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
     public void showErrorMessage(String errorMessage) {
 
     }
+
     @Override
     protected void initViews() {
        /* setSupportActionBar(toolbar);
@@ -159,6 +174,7 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
         mLocationOption.setOnceLocation(false);
         //设置是否强制刷新WIFI，默认为强制刷新
         mLocationOption.setWifiActiveScan(true);
+
         mLocationOption.setInterval(200000);//设置连续定位 setOnceLocation(true);一次定位
         //设置是否允许模拟位置,默认为false，不允许模拟位置
         mLocationOption.setMockEnable(false);
@@ -169,20 +185,23 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
     }
 
     private MarkerOptions getMarkerOptions(AMapLocation amapLocation) {
-        MarkerOptions markerOption = new MarkerOptions();
-        markerOption.position(new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()));
-        markerOption.draggable(true);
 
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(amapLocation.getCountry() + "" + amapLocation.getProvince() + "" + amapLocation.getCity()
-                + "" + amapLocation.getDistrict() + "" + amapLocation.getStreet() + "" + amapLocation.getStreetNum());
+        MarkerOptions markerOption = new MarkerOptions();
+        markerOption.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+        markerOption.draggable(true);
         markerOption.setFlat(true);
+        //设置多少帧刷新一次图片资源
+
+        markerOption.period(60);
+
+        markerOption.position(new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()));
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(amapLocation.getDistrict() + "" + amapLocation.getStreet() + "" + amapLocation.getStreetNum());
         //标题
         markerOption.title(buffer.toString());
         //子标题
-        markerOption.snippet("这里好火");
-        //设置多少帧刷新一次图片资源
-        markerOption.period(60);
+       /* markerOption.snippet();*/
+
         return markerOption;
     }
 
@@ -220,7 +239,7 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
 
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
-
+        aMapLocation = amapLocation;
         // Log.d(TAG, "onLocationChanged:  \"定位回调\"");
         if (amapLocation != null) {
 
@@ -242,7 +261,11 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
                 amapLocation.getStreetNum();//街道门牌号信息
                 amapLocation.getCityCode();//城市编码
                 amapLocation.getAdCode();//地区编码
-                aMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+                locationLatLng = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+                aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+                mLocationClient.addGeoFenceAlert("fenceId",
+                        amapLocation.getLatitude(), amapLocation.getLongitude(),
+                        10, -1, null);
                 Log.d(TAG, "onLocationChanged: " + amapLocation.getLongitude() + "\n" + amapLocation.getLatitude());
                 // 如果不设置标志位，此时再拖动地图时，它会不断将地图移动到当前的位置
                 if (isFirstLoc) {
@@ -278,27 +301,162 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
 
     }
 
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    @Override
+    public View getInfoContents(Marker marker) {
+        return null;
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+
+    }
+
+    @Override//是否需要添加所有marker
+    public void onMapLoaded() {
+        spotList=queryList(parentId);
+        for (Spot spot : spotList) {
+            LatLng latLng=new LatLng(spot.getLatitude(),spot.getLongitude());
+
+             aMap.addMarker(new MarkerOptions()
+                     .position(latLng)
+                    .title(spot.getLocation())
+                    .icon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .draggable(false));
+        }
+
+    }
+
+    private ArrayList<Spot> queryList(long itemId) {
+        QueryBuilder<Spot> queryBuilder=daoSession.getSpotDao().queryBuilder().where(SpotDao.Properties.ParentID.eq(parentId));
+
+        return (ArrayList<Spot>) queryBuilder.list();
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
+
+    @Override//开始拖动
+    public void onMarkerDragStart(Marker marker) {
+
+    }
+
+    @Override//拖到中
+    public void onMarkerDrag(Marker marker) {
+
+    }
+
+    @Override//拖到结束
+    public void onMarkerDragEnd(Marker marker) {
+        LatLng markerLatLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+
+        KLog.d("des"+marker.getPosition().describeContents());
+        distance = AMapUtils.calculateLineDistance(locationLatLng, markerLatLng);
+        if (distance > 200) {
+            Toast.makeText(this, "勘测点的位置不能超过定位位置200m,当前距离" + distance + "m", Toast.LENGTH_SHORT).show();
+            marker.remove();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode==RESULT_OK) {
+                Toast.makeText(this, "成功返回i", Toast.LENGTH_SHORT).show();
+                editdMark.setDraggable(false);
+            }
+
+        }
+    }
+
+    /**
+     * 监听自定义infowindow窗口的infowindow事件回调
+     */
+    @Override
+    public View getInfoWindow(Marker marker) {
+
+        View infoWindow = getLayoutInflater().inflate(
+                R.layout.custom_info_window, null);
+
+        render(marker, infoWindow);
+        return infoWindow;
+    }
+
+    /**
+     * 自定义infowinfow窗口
+     */
+    public void render(final Marker marker, View view) {
+
+        String title = marker.getTitle();
+        TextView titleUi = ((TextView) view.findViewById(R.id.title));
+        if (title != null) {
+            titleUi.setText(title);
+        } else {
+            titleUi.setText("");
+        }
+        Button btnEdit = (Button) view.findViewById(R.id.btn_confirm);
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (distance > 200)
+                    Toast.makeText(MapActivity.this, "勘测点的位置不能超过定位位置200m,当前距离" + distance + "m", Toast.LENGTH_SHORT).show();
+                else
+                    startEditSpot(marker);
+
+            }
+        });
+        Button btnCancel = (Button) view.findViewById(R.id.btn_cancel);
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                marker.remove();
+            }
+        });
+    }
+
+    private void startEditSpot(Marker marker) {
+        editdMark=marker;
+        Intent intent = MyUtils.buildCreateProjectIntent(MapActivity.this, parentId, 0L, ShowProjectActivity.CREATE_SPOT, marker.getId());
+        int batch=Integer.valueOf(marker.getId().substring(6,marker.getId().length()))-1;
+        intent.putExtra("BATCH", batch);
+        intent.putExtra("LATITUDE", marker.getPosition().latitude);
+        intent.putExtra("LONGITUDE", marker.getPosition().longitude);
+        intent.putExtra("DISTANCE", distance);
+        intent.putExtra("LOCATION",marker.getTitle());
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_map, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-       /* //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }*/
         switch (id) {
             case R.id.action_collect:
-                aMap.moveCamera(CameraUpdateFactory.changeLatLng(latLng));
+                Toast.makeText(this, "详情", Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(MapActivity.this,SpotDetailActivity.class);
+                intent.putExtra("PARENT_ID",parentId);
+                startActivity(intent);
+                break;
+            case R.id.action_search:
+                Toast.makeText(this, "搜索", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.action_edit:
+                aMap.addMarker(getMarkerOptions(aMapLocation));
                 break;
         }
 
@@ -310,33 +468,4 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
         return false;
     }
 
-
-
-
 }
-/* public static String sHA1(Context context) {
-        try {
-            PackageInfo info = context.getPackageManager().getPackageInfo(
-                    context.getPackageName(), PackageManager.GET_SIGNATURES);
-            byte[] cert = info.signatures[0].toByteArray();
-            MessageDigest md = MessageDigest.getInstance("SHA1");
-            byte[] publicKey = md.digest(cert);
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < publicKey.length; i++) {
-                String appendString = Integer.toHexString(0xFF & publicKey[i])
-                        .toUpperCase(Locale.US);
-                if (appendString.length() == 1)
-                    hexString.append("0");
-                hexString.append(appendString);
-                hexString.append(":");
-            }
-            String result=hexString.toString();
-            return result.substring(0, result.length()-1);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-* */

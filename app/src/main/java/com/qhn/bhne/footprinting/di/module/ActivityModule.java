@@ -8,6 +8,7 @@ import com.qhn.bhne.footprinting.db.ConstructionDao;
 import com.qhn.bhne.footprinting.db.DaoSession;
 import com.qhn.bhne.footprinting.db.FileContentDao;
 import com.qhn.bhne.footprinting.db.ProjectDao;
+import com.qhn.bhne.footprinting.db.SpotDao;
 import com.qhn.bhne.footprinting.db.UserDao;
 import com.qhn.bhne.footprinting.di.scope.ContextLife;
 import com.qhn.bhne.footprinting.di.scope.PerActivity;
@@ -70,6 +71,10 @@ public class ActivityModule {
     @Provides
     public FileContentDao ProvideFileContentDao() {
         return daoSession.getFileContentDao();
+    }
+    @Provides
+    public SpotDao ProvideSpotDao() {
+        return daoSession.getSpotDao();
     }
 
 /*

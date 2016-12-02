@@ -67,4 +67,5 @@
     <color name="black">#FF000000</color>
 
     <color name="transparent">#00000000</color>
+    <color name="cut_line">#d4d4d4</color>
 </resources>

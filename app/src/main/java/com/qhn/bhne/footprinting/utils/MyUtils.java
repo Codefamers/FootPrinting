@@ -39,4 +39,12 @@ public class MyUtils {
         intent.putExtra("PROJECT_NAME", projectName);
         return intent;
     }
+    /*public static Intent buildCreateProjectIntent(Context context,Long childID,Long itemID,int eventType,String projectName){
+        Intent intent = new Intent(context, CreateProjectActivity.class);
+        intent.putExtra("PROJECT_ID", childID);
+        intent.putExtra("ITEM_ID", itemID);
+        intent.putExtra("EVENT_CATEGORY", eventType);
+        intent.putExtra("PROJECT_NAME", projectName);
+        return intent;
+    }*/
 }

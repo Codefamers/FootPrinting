@@ -7,5 +7,6 @@ package com.qhn.bhne.footprinting.mvp.view;
 
 public interface MapActivityView extends BaseView {
     void dragMaker();
+    void editSpotComplete();
 
 }

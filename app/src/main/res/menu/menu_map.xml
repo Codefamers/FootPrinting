@@ -6,18 +6,18 @@
     <item
         android:id="@+id/action_search"
         android:icon="@mipmap/ic_search_white_24dp"
-        android:orderInCategory="100"
+        android:orderInCategory="200"
         android:title="@string/action_search"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_collect"
-        android:icon="@mipmap/ic_more_vert_white_24dp"
-        android:orderInCategory="190"
+        android:icon="@mipmap/ic_book_white_24dp"
+        android:orderInCategory="100"
         android:title="@string/action_collect"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_edit"
-        android:icon="@mipmap/ic_more_vert_white_24dp"
+        android:icon="@mipmap/ic_mode_edit_white_24dp"
         android:title="@string/action_edit"
         app:showAsAction="ifRoom" />
 

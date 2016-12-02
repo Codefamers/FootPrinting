@@ -6,6 +6,7 @@ import com.qhn.bhne.footprinting.mvp.entries.Spot;
 import com.qhn.bhne.footprinting.mvp.interactor.impl.ConstructionInteImpl;
 import com.qhn.bhne.footprinting.mvp.interactor.impl.FileIntelImpl;
 import com.qhn.bhne.footprinting.mvp.interactor.impl.ProjectInteImpl;
+import com.qhn.bhne.footprinting.mvp.interactor.impl.SpotIntelImpl;
 import com.qhn.bhne.footprinting.mvp.presenter.CreateProjectPresenter;
 import com.qhn.bhne.footprinting.mvp.presenter.base.BasePresenterImpl;
 import com.qhn.bhne.footprinting.mvp.view.CreateProjectView;
@@ -18,18 +19,18 @@ import javax.inject.Inject;
  */
 
 public class CreateProjectPI extends BasePresenterImpl<CreateProjectView,Construction> implements CreateProjectPresenter{
-    public static final int RESULT_CREATE_CONST = 201;
-    public static final int RESULT_UPDATE_CONST = 202;
     private ProjectInteImpl projectInteractor;
     private ConstructionInteImpl constructionInte;
-
+    private SpotIntelImpl spotIntel;
 
     @Inject
-    public CreateProjectPI(ProjectInteImpl projectInteractor, ConstructionInteImpl constructionInte) {
+    public CreateProjectPI(SpotIntelImpl spotIntel, ProjectInteImpl projectInteractor, ConstructionInteImpl constructionInte) {
+        this.spotIntel = spotIntel;
         this.projectInteractor = projectInteractor;
         this.constructionInte = constructionInte;
-
     }
+
+
     @Override
     public Long insertProject(Project project) {
         return  projectInteractor.insert(project);
@@ -42,7 +43,7 @@ public class CreateProjectPI extends BasePresenterImpl<CreateProjectView,Constru
 
     @Override
     public Long insertSpot(Spot spot) {
-        return null;
+        return spotIntel.insert(spot);
     }
 
 
@@ -84,6 +85,12 @@ public class CreateProjectPI extends BasePresenterImpl<CreateProjectView,Constru
         Long id =insertConstruction(construction);
         construction.setChildId(id * construction.getConstructionMax());
         updateConst(construction);
+        mView.returnResult();
+    }
+
+    @Override
+    public void createSpot(Spot spot) {
+        spotIntel.save(spot);
         mView.returnResult();
     }
 

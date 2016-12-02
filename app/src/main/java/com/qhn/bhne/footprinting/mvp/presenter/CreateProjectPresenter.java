@@ -28,4 +28,6 @@ public interface CreateProjectPresenter {
     void createProject(Project project);
 
     void createConstruction(Construction construction);
+
+    void createSpot(Spot spot);
 }

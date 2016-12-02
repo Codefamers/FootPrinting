@@ -39,14 +39,15 @@
                 android:background="@color/colorPrimary"
                 android:scaleType="centerCrop">
 
-                <TextView
+                <EditText
                     android:id="@+id/txt_project_name"
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/y40"
+                    android:layout_height="@dimen/y48"
                     android:layout_alignParentBottom="true"
                     android:layout_marginBottom="@dimen/y48"
                     android:layout_marginLeft="16dp"
                     android:maxLines="1"
+                    android:background="@null"
                     android:text="天津滨海供电项目"
                     android:textColor="@color/alpha_85_white"
                     android:textSize="34sp" />
@@ -66,6 +67,7 @@
             <include layout="@layout/project_properties" />
 
             <include layout="@layout/construction_properties" />
+            <include layout="@layout/spot_properties"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </LinearLayout>

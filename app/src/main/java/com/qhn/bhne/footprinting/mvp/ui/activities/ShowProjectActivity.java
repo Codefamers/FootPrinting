@@ -22,7 +22,6 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import com.qhn.bhne.footprinting.R;
 import com.qhn.bhne.footprinting.interfaces.Constants;
 import com.qhn.bhne.footprinting.interfaces.PopClickItemCallBack;
@@ -48,6 +47,7 @@ public class ShowProjectActivity extends BaseActivity
     public static final int CREATE_PROJECT = 1;
     public static final int CREATE_CONSTRUCTION = 2;
     public static final int CREATE_FILE = 3;
+    public static final int CREATE_SPOT = 4;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.content_show_project)
@@ -233,8 +233,10 @@ public class ShowProjectActivity extends BaseActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_camera:
+                startActivity(new Intent(ShowProjectActivity.this,CameraActivity.class));
                 break;
             case R.id.nav_gallery:
+                startActivity(new Intent(ShowProjectActivity.this,MarkerActivity.class));
                 break;
             case R.id.nav_manage:
                 break;
@@ -243,6 +245,7 @@ public class ShowProjectActivity extends BaseActivity
             case R.id.nav_slideshow:
                 break;
             case R.id.nav_view:
+                startActivity(new Intent(ShowProjectActivity.this,CameraActivity.class));
                 break;
         }
         drawer.closeDrawer(GravityCompat.START);
@@ -284,9 +287,11 @@ public class ShowProjectActivity extends BaseActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Toast.makeText(this, "showprojectActivity", Toast.LENGTH_SHORT).show();
         if (requestCode == 100) {
             if (resultCode==RESULT_OK) {
                 daoSession.clear();
+                Toast.makeText(this, "showprojectActivity", Toast.LENGTH_SHORT).show();
                 showProjectPresenter.refreshData();
             }
         }

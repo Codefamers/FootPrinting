@@ -31,6 +31,12 @@
         <item >配电自动化</item>
         <item >电动汽车充换电桩</item>
         <item >其他项目</item>
-
     </string-array>
+    <string-array name="spot_type">
+        <item>点类型(提示内容)</item>
+        <item >桩点</item>
+        <item >地物</item>
+        <item >变压器</item>
+    </string-array>
+
 </resources>

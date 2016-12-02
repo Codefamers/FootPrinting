@@ -148,7 +148,7 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
         if (constructionList.size() != 0) {
             final Construction construction = constructionList.get(childPosition);
             holder.txtConsName.setText(constructionList.get(childPosition).getName());
-            List<FileContent> fileContentList = construction.getFileContentList();
+            final List<FileContent> fileContentList = construction.getFileContentList();
             adapter = new FileListAdapter(fileContentList);
             holder.lvFile.setAdapter(adapter);
             setListViewHeightBasedOnChildren(holder.lvFile);
@@ -181,7 +181,10 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
             holder.lvFile.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                    context.startActivity(new Intent(context, MapActivity.class));
+                    Intent intent=new Intent(context, MapActivity.class);
+                    intent.putExtra("CHILD_ID",fileContentList.get(position).getChildId());
+                    intent.putExtra("ITEM_ID",fileContentList.get(position).getFileID());
+                    context.startActivity(intent);
                 }
             });
         }
@@ -189,13 +192,6 @@ public class ExpandProjectListView extends BaseExpandableListAdapter implements 
 
         return convertView;
 
-    }
-
-    private List<FileContent> queryFile(Long constID) {
-        Query<FileContent> query = daoSession.getFileContentDao().queryBuilder()
-                .where(FileContentDao.Properties.ParentID.eq(constID)).build();
-
-        return query.list();
     }
 
     @Override
